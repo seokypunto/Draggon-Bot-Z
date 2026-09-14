@@ -3,20 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Dragon Bot Z - Idle Realm</title>
+  <title>Dragon Bot Z</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
-      --primary-color: #f39c12;
-      --bg-dark: #0a0d14;
-      --app-bg: #12161e;
-      --panel-bg: rgba(20, 26, 38, 0.95);
-      --border-light: rgba(255, 255, 255, 0.15);
+      --orange-dbz: #FF9800;
+      --orange-gold: #FFB300;
+      --bg-dark: #090B10;
+      --panel-bg: rgba(13, 17, 26, 0.95);
+      --border-glow: rgba(255, 152, 0, 0.3);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     
-    /* FONDO GENERAL EN PC (SIMULA ENTORNO MÓVIL CENTRADO) */
     body {
       background-color: var(--bg-dark);
       color: #fff;
@@ -28,170 +27,113 @@
       align-items: center;
     }
 
-    /* CONTENEDOR TIPO SMARTPHONE (MANDATORIO PARA QUE EN PC NO SE DEFORME) */
+    /* CONTENEDOR MÓVIL (APP SHELL) */
     #app-wrapper {
       width: 100%;
-      max-width: 450px; /* Ancho real de pantalla de móvil */
+      max-width: 450px;
       height: 100vh;
-      max-height: 920px; /* Alto máximo proporcional */
-      background-color: var(--app-bg);
+      max-height: 920px;
+      background-color: #10141e;
       position: relative;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
-      border-radius: 0px;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
     }
 
-    /* Si se abre en monitor de PC, le añade esquinas redondeadas estilo marco de móvil */
     @media (min-width: 481px) {
       #app-wrapper {
-        height: 90vh;
-        border-radius: 24px;
-        border: 2px solid rgba(255, 255, 255, 0.1);
+        height: 92vh;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
       }
     }
 
-    /* BARRA SUPERIOR DE RECURSOS COMPACTA MÓVIL */
+    /* BARRA SUPERIOR */
     #header {
-      background: rgba(15, 22, 32, 0.9);
+      background: linear-gradient(180deg, rgba(15,20,30,0.95) 0%, rgba(15,20,30,0.8) 100%);
       backdrop-filter: blur(8px);
-      padding: 10px 12px;
+      padding: 8px 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       z-index: 20;
-      border-bottom: 1px solid var(--border-light);
+      border-bottom: 1px solid var(--border-glow);
     }
 
-    .profile-badge {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
+    .profile-badge { display: flex; align-items: center; gap: 8px; }
     .avatar-frame {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #f39c12, #e67e22);
-      border: 2px solid #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      position: relative;
+      width: 38px; height: 38px; border-radius: 50%;
+      background: linear-gradient(135deg, #FF9800, #F57C00);
+      border: 2px solid #FFF; display: flex; align-items: center; justify-content: center;
+      font-weight: bold; font-size: 14px; position: relative;
+      box-shadow: 0 0 10px rgba(255,152,0,0.5);
     }
-
     .level-tag {
-      position: absolute;
-      bottom: -4px;
-      left: -2px;
-      background: #e74c3c;
-      color: #fff;
-      font-size: 8px;
-      font-weight: bold;
-      padding: 1px 4px;
-      border-radius: 8px;
-      border: 1px solid #fff;
+      position: absolute; bottom: -3px; left: -2px;
+      background: #E53935; color: #FFF; font-size: 8px; font-weight: 900;
+      padding: 1px 4px; border-radius: 6px; border: 1px solid #FFF;
     }
 
     .resources-bar {
-      display: flex;
-      gap: 4px;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 4px 6px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.1);
+      display: flex; gap: 4px; background: rgba(0, 0, 0, 0.6);
+      padding: 4px 8px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
     }
-
     .res-item {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      font-size: 10px;
-      font-weight: bold;
-      padding: 2px 5px;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.05);
+      display: flex; align-items: center; gap: 3px; font-size: 10px; font-weight: bold;
+      padding: 2px 5px; border-radius: 10px; background: rgba(255, 255, 255, 0.05);
     }
 
-    /* CONTENEDOR DEL MAPA (ASPECT RATIO DE MÓVIL) */
+    /* MAPA CON ILUSTRACIÓN DE FONDO (ESTILO PAISAJE ANIME/DBZ) */
     #map-viewport {
-      flex: 1;
-      position: relative;
-      overflow: hidden;
-      background: linear-gradient(to bottom, #74b9ff 0%, #a8e6cf 35%, #56ab2f 60%, #48b1bf 100%);
+      flex: 1; position: relative; overflow: hidden;
+      background: #7ec0ee;
     }
 
-    /* EDIFICIOS Y NODOS EN EL MAPA */
+    .map-background {
+      position: absolute; width: 100%; height: 100%;
+      background: 
+        radial-gradient(circle at 50% 30%, rgba(255,255,255,0.3) 0%, transparent 60%),
+        linear-gradient(to bottom, 
+          #64b5f6 0%, 
+          #90caf9 25%, 
+          #81c784 45%, 
+          #4caf50 70%, 
+          #2e7d32 100%);
+    }
+
+    /* NODOS E ILUSTRACIONES DE EDIFICIOS */
     .map-node {
-      position: absolute;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-      transform: translate(-50%, -50%);
+      position: absolute; display: flex; flex-direction: column; align-items: center;
+      cursor: pointer; transform: translate(-50%, -50%); filter: drop-shadow(0 6px 8px rgba(0,0,0,0.4));
       transition: transform 0.15s ease;
     }
+    .map-node:active { transform: translate(-50%, -50%) scale(0.92); }
 
-    .map-node:active {
-      transform: translate(-50%, -50%) scale(0.92);
+    .building-graphic {
+      width: 70px; height: 70px; position: relative;
+      display: flex; align-items: center; justify-content: center;
     }
 
-    .building-icon {
-      width: 65px;
-      height: 65px;
-      background: linear-gradient(135deg, #27ae60, #2ecc71);
-      border: 2px solid #1e8449;
-      border-radius: 16px;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 30px;
-      position: relative;
-    }
-
-    .building-icon.castle {
-      width: 80px; height: 80px;
-      background: linear-gradient(135deg, #e67e22, #f39c12);
-      border-color: #d35400;
-      font-size: 40px;
+    .building-graphic.main-kame {
+      width: 90px; height: 90px;
     }
 
     .node-label {
-      margin-top: 3px;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(4px);
-      padding: 2px 6px;
-      border-radius: 8px;
-      font-size: 10px;
-      font-weight: bold;
-      border: 1px solid rgba(255,255,255,0.2);
-      display: flex;
-      align-items: center;
-      gap: 3px;
+      margin-top: -4px; background: rgba(10, 14, 22, 0.88);
+      backdrop-filter: blur(4px); padding: 3px 8px; border-radius: 10px;
+      font-size: 10px; font-weight: bold; border: 1px solid var(--orange-dbz);
+      display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.5);
     }
+    .node-lvl { color: var(--orange-gold); }
 
-    .node-lvl { color: #f1c40f; }
-
-    /* BOCADILLOS DE RECOLECCIÓN */
+    /* BOCADILLO FLOTANTE DE RECOLECCIÓN */
     .collect-bubble {
-      position: absolute;
-      top: -16px;
-      background: #fff;
-      color: #333;
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-      animation: float 2s infinite ease-in-out;
-      border: 2px solid #f39c12;
+      position: absolute; top: -14px; background: #FFF; color: #333;
+      border-radius: 50%; width: 28px; height: 28px; display: flex;
+      align-items: center; justify-content: center; font-size: 14px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.4); animation: float 2.2s infinite ease-in-out;
+      border: 2px solid var(--orange-dbz); z-index: 5;
     }
 
     @keyframes float {
@@ -199,252 +141,211 @@
       50% { transform: translateY(-5px); }
     }
 
-    /* MENÚ FLOTANTE DERECHO */
+    /* BOTONES LATERALES CIRCULARES */
     .floating-menu {
-      position: absolute;
-      right: 10px;
-      top: 15px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      z-index: 15;
+      position: absolute; right: 10px; top: 15px;
+      display: flex; flex-direction: column; gap: 10px; z-index: 15;
     }
-
     .circle-btn {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: rgba(20, 26, 38, 0.85);
-      border: 2px solid var(--primary-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-      position: relative;
-      cursor: pointer;
+      width: 42px; height: 42px; border-radius: 50%;
+      background: rgba(15, 20, 30, 0.85); border: 2px solid var(--orange-dbz);
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5); position: relative; cursor: pointer;
     }
-
     .badge-dot {
-      position: absolute;
-      top: 0; right: 0;
-      width: 10px; height: 10px;
-      background: #e74c3c;
-      border-radius: 50%;
-      border: 2px solid #fff;
+      position: absolute; top: 1px; right: 1px; width: 10px; height: 10px;
+      background: #E53935; border-radius: 50%; border: 2px solid #FFF;
     }
 
-    /* PESTAÑAS Y MODALES */
+    /* PESTAÑAS / MODALES DE SECCIONES */
     .view-modal {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: var(--panel-bg);
-      backdrop-filter: blur(10px);
-      z-index: 25;
-      display: none;
-      padding: 20px;
-      overflow-y: auto;
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--panel-bg); backdrop-filter: blur(10px);
+      z-index: 25; display: none; padding: 20px; overflow-y: auto;
     }
-
     .view-modal.active { display: block; }
-
     .modal-title {
-      font-size: 18px;
-      font-weight: bold;
-      color: var(--primary-color);
-      text-transform: uppercase;
-      text-align: center;
-      margin-bottom: 15px;
-      border-bottom: 1px solid var(--border-light);
-      padding-bottom: 8px;
+      font-size: 18px; font-weight: bold; color: var(--orange-dbz);
+      text-transform: uppercase; text-align: center; margin-bottom: 15px;
+      border-bottom: 1px solid var(--border-glow); padding-bottom: 8px; letter-spacing: 1px;
     }
 
-    /* BARRA INFERIOR DE NAVEGACIÓN COMPACTA */
+    /* BARRA INFERIOR CON TUS 6 PESTAÑAS ORIGINALES */
     #nav-bar {
-      background: #0d1117;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      padding: 6px 2px 8px 2px;
-      border-top: 1px solid var(--border-light);
-      z-index: 30;
+      background: #090B10; display: grid; grid-template-columns: repeat(6, 1fr);
+      padding: 6px 2px 8px 2px; border-top: 1px solid var(--border-glow); z-index: 30;
     }
-
     .nav-tab {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: none;
-      border: none;
-      color: #8b949e;
-      font-size: 9px;
-      font-weight: 600;
-      gap: 2px;
-      cursor: pointer;
-      position: relative;
-      padding: 4px 0;
-      border-radius: 8px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: none; border: none; color: #78909C; font-size: 8px; font-weight: 700;
+      gap: 3px; cursor: pointer; position: relative; padding: 4px 0; border-radius: 6px;
+      text-transform: uppercase;
     }
-
-    .nav-tab.active {
-      color: #fff;
-      background: rgba(243, 156, 18, 0.2);
-    }
-
+    .nav-tab.active { color: var(--orange-dbz); background: rgba(255, 152, 0, 0.12); }
     .nav-tab.active::before {
-      content: '';
-      position: absolute;
-      top: 0; width: 24px; height: 2px;
-      background: var(--primary-color);
-      border-radius: 2px;
+      content: ''; position: absolute; top: -6px; width: 20px; height: 2px;
+      background: var(--orange-dbz); border-radius: 2px; box-shadow: 0 0 6px var(--orange-dbz);
     }
-
-    .nav-icon { font-size: 18px; }
-
-    .notification-count {
-      position: absolute;
-      top: 1px; right: 8px;
-      background: #e74c3c;
-      color: #fff;
-      font-size: 8px;
-      font-weight: bold;
-      width: 14px; height: 14px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      border: 1px solid #fff;
-    }
+    .nav-icon { font-size: 16px; }
   </style>
 </head>
 <body>
 
-  <!-- CONTENEDOR MARCO MÓVIL CENTRADO -->
   <div id="app-wrapper">
 
-    <!-- BARRA SUPERIOR DE RECURSOS -->
+    <!-- BARRA SUPERIOR -->
     <div id="header">
       <div class="profile-badge">
         <div class="avatar-frame">
-          🐉
+          Z
           <span class="level-tag">30</span>
         </div>
       </div>
       <div class="resources-bar">
-        <div class="res-item">🌾 586K</div>
-        <div class="res-item">🪵 995K</div>
-        <div class="res-item">🪨 586K</div>
-        <div class="res-item">💎 99</div>
+        <div class="res-item">💰 1.25K</div>
+        <div class="res-item">⚡ 100</div>
+        <div class="res-item">🔮 0/7</div>
       </div>
     </div>
 
-    <!-- ÁREA DEL MAPA DEL JUEGO -->
+    <!-- MAPA INTERACTIVO -->
     <div id="map-viewport">
-      
-      <!-- MENU FLOTANTE DERECHO -->
+      <div class="map-background"></div>
+
+      <!-- BOTONES FLOTANTES LATERALES -->
       <div class="floating-menu">
-        <div class="circle-btn">
-          🎁 <span class="badge-dot"></span>
-        </div>
-        <div class="circle-btn" style="border-color: #f1c40f;">
-          👑 <span class="badge-dot"></span>
-        </div>
-        <div class="circle-btn">👥</div>
+        <div class="circle-btn">🎁 <span class="badge-dot"></span></div>
+        <div class="circle-btn" style="border-color: #FFB300;">👑 <span class="badge-dot"></span></div>
         <div class="circle-btn">💬</div>
       </div>
 
-      <!-- NODOS DEL MAPA DE LA ALDEA -->
-      <div class="map-node" style="top: 30%; left: 50%;" onclick="openModal('castillo')">
-        <div class="building-icon castle">🏯</div>
+      <!-- NODOS ALDEA (CASA KAME Y EDIFICIOS ESTILIZADOS) -->
+      
+      <!-- CASA KAME / ALDEA PRINCIPAL -->
+      <div class="map-node" style="top: 32%; left: 50%;" onclick="openModal('aldea-info')">
+        <div class="building-graphic main-kame">
+          <svg viewBox="0 0 100 100" width="100%" height="100%">
+            <!-- Cúpula/Tejado Casa Kame -->
+            <path d="M 20 50 Q 50 10 80 50 Z" fill="#E53935" stroke="#B71C1C" stroke-width="3"/>
+            <!-- Estructura Base Rosada -->
+            <rect x="25" y="48" width="50" height="35" rx="5" fill="#FF8A80" stroke="#C62828" stroke-width="3"/>
+            <!-- Puerta y Ventana -->
+            <rect x="42" y="62" width="16" height="21" fill="#4E342E"/>
+            <circle cx="37" cy="58" r="5" fill="#E0F7FA" stroke="#00838F" stroke-width="2"/>
+          </svg>
+        </div>
         <div class="node-label">
-          <span class="node-lvl">30</span> Castillo
+          <span class="node-lvl">30</span> Casa Kame
         </div>
       </div>
 
-      <div class="map-node" style="top: 50%; left: 24%;" onclick="openModal('aserradero')">
-        <div class="collect-bubble">🪵</div>
-        <div class="building-icon">🪓</div>
+      <!-- LABORATORIO CÁPSULA -->
+      <div class="map-node" style="top: 52%; left: 26%;" onclick="switchTab('capsula')">
+        <div class="collect-bubble">⚡</div>
+        <div class="building-graphic">
+          <svg viewBox="0 0 100 100" width="100%" height="100%">
+            <circle cx="50" cy="50" r="35" fill="#80DEEA" stroke="#00838F" stroke-width="3"/>
+            <path d="M 30 50 L 70 50 M 50 30 L 50 70" stroke="#FFF" stroke-width="4"/>
+          </svg>
+        </div>
         <div class="node-label">
-          <span class="node-lvl">28</span> Aserradero
+          <span class="node-lvl">28</span> Cápsula Lab
         </div>
       </div>
 
-      <div class="map-node" style="top: 48%; left: 76%;" onclick="openModal('granja')">
-        <div class="collect-bubble">🌾</div>
-        <div class="building-icon" style="background: linear-gradient(135deg, #f1c40f, #f39c12);">🌾</div>
+      <!-- ZONA DE ENTRENAMIENTO -->
+      <div class="map-node" style="top: 50%; left: 74%;" onclick="openModal('entrenamiento')">
+        <div class="collect-bubble">💥</div>
+        <div class="building-graphic">
+          <svg viewBox="0 0 100 100" width="100%" height="100%">
+            <polygon points="50,15 85,80 15,80" fill="#FFB74D" stroke="#E65100" stroke-width="3"/>
+            <circle cx="50" cy="55" r="12" fill="#E65100"/>
+          </svg>
+        </div>
         <div class="node-label">
-          <span class="node-lvl">28</span> Granja
+          <span class="node-lvl">28</span> Dojo Z
         </div>
       </div>
 
-      <div class="map-node" style="top: 66%; left: 48%;" onclick="openModal('combates')">
-        <div class="building-icon" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">🎯</div>
+      <!-- ALTAR SHENRON (CENTRO INFERIOR) -->
+      <div class="map-node" style="top: 74%; left: 50%;" onclick="switchTab('bolas')">
+        <div class="building-graphic">
+          <svg viewBox="0 0 100 100" width="100%" height="100%">
+            <circle cx="50" cy="50" r="32" fill="#FFD54F" stroke="#FF8F00" stroke-width="3"/>
+            <polygon points="50,28 55,40 68,40 57,48 61,60 50,52 39,60 43,48 32,40 45,40" fill="#E53935"/>
+          </svg>
+        </div>
         <div class="node-label">
-          <span class="node-lvl">28</span> Campo Tiro
+          <span class="node-lvl">7/7</span> Altar Shenron
         </div>
       </div>
 
-      <div class="map-node" style="top: 75%; left: 78%;" onclick="openModal('cuarteles')">
-        <div class="building-icon" style="background: linear-gradient(135deg, #8e44ad, #9b59b6);">⚔️</div>
-        <div class="node-label">
-          <span class="node-lvl">29</span> Cuarteles
-        </div>
+      <!-- MODALES DE INFORMACIÓN -->
+      <div id="modal-aldea-info" class="view-modal">
+        <div class="modal-title">🏠 Casa Kame (Sede)</div>
+        <p style="text-align: center; color: #AAA; font-size: 13px;">Nivel de la base principal: 30.<br>Aumenta la producción global de recursos.</p>
+        <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
       </div>
 
-      <div class="map-node" style="top: 82%; left: 28%;" onclick="openModal('establo')">
-        <div class="building-icon" style="background: linear-gradient(135deg, #d35400, #e67e22);">🐎</div>
-        <div class="node-label">
-          <span class="node-lvl">27</span> Establo
-        </div>
+      <div id="modal-entrenamiento" class="view-modal">
+        <div class="modal-title">💥 Dojo de Entrenamiento</div>
+        <p style="text-align: center; color: #AAA; font-size: 13px;">Mejora las estadísticas de combate de tus guerreros.</p>
+        <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
       </div>
 
-      <!-- MODALES -->
-      <div id="modal-castillo" class="view-modal">
-        <div class="modal-title">🏯 Castillo Principal</div>
-        <p style="text-align: center; color: #aaa;">Sede central de la aldea.</p>
-        <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 13px;" onclick="closeModals()">Cerrar</button>
+      <!-- VISTAS DE TUS PESTAÑAS ORIGINALES -->
+      <div id="modal-capsula" class="view-modal">
+        <div class="modal-title">🧪 Cápsula Corp</div>
+        <p style="text-align: center; color: #AAA; font-size: 13px;">Gestión de inventario y tecnología Cápsula.</p>
       </div>
 
-      <div id="modal-combates" class="view-modal">
-        <div class="modal-title">⚔️ Zona de Combate</div>
-        <p style="text-align: center; color: #aaa;">Combates PVE / PVP.</p>
-        <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 13px;" onclick="closeModals()">Cerrar</button>
+      <div id="modal-guerreros" class="view-modal">
+        <div class="modal-title">⚔️ Escuadrón Z</div>
+        <p style="text-align: center; color: #AAA; font-size: 13px;">Alineación de guerreros y estadísticas de equipo.</p>
       </div>
 
-      <div id="modal-clan" class="view-modal">
-        <div class="modal-title">🛡️ Tu Clan</div>
-        <p style="text-align: center; color: #aaa;">Sección de Clan.</p>
-        <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 13px;" onclick="closeModals()">Cerrar</button>
+      <div id="modal-planetas" class="view-modal">
+        <div class="modal-title">🌌 Expediciones Galácticas</div>
+        <p style="text-align: center; color: #AAA; font-size: 13px;">Explora Namek, Planeta Vegeta y otros mundos.</p>
       </div>
 
-      <div id="modal-misiones" class="view-modal">
-        <div class="modal-title">📜 Misiones Diarias</div>
-        <p style="text-align: center; color: #aaa;">Recompensas diarias.</p>
-        <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 13px;" onclick="closeModals()">Cerrar</button>
+      <div id="modal-minteo" class="view-modal">
+        <div class="modal-title">✨ Tienda de Invocación</div>
+        <p style="text-align: center; color: #AAA; font-size: 13px;">Invoca nuevos personajes y artefactos NFT.</p>
+      </div>
+
+      <div id="modal-bolas" class="view-modal">
+        <div class="modal-title">🐉 Altar de Shenron</div>
+        <p style="text-align: center; color: #AAA; font-size: 13px;">Reúne las 7 esferas del dragón para pedir tu deseo.</p>
       </div>
 
     </div>
 
-    <!-- NAVEGACIÓN INFERIOR -->
+    <!-- BARRA DE NAVEGACIÓN INFERIOR (TUS 6 PESTAÑAS) -->
     <div id="nav-bar">
-      <button class="nav-tab active" onclick="switchTab('ciudad')">
-        <span class="nav-icon">🏰</span>
-        <span>Ciudad</span>
+      <button class="nav-tab" onclick="switchTab('capsula')">
+        <span class="nav-icon">🧪</span>
+        <span>Cápsula</span>
       </button>
-      <button class="nav-tab" onclick="switchTab('combates')">
+      <button class="nav-tab active" onclick="switchTab('aldea')">
+        <span class="nav-icon">🏘️</span>
+        <span>Aldea</span>
+      </button>
+      <button class="nav-tab" onclick="switchTab('guerreros')">
         <span class="nav-icon">⚔️</span>
-        <span>Combates</span>
+        <span>Guerreros</span>
       </button>
-      <button class="nav-tab" onclick="switchTab('clan')">
-        <span class="nav-icon">🛡️</span>
-        <span>Clan</span>
+      <button class="nav-tab" onclick="switchTab('planetas')">
+        <span class="nav-icon">🌌</span>
+        <span>Planetas</span>
       </button>
-      <button class="nav-tab" onclick="switchTab('misiones')">
-        <span class="nav-icon">📜</span>
-        <span>Misiones</span>
-        <span class="notification-count">1</span>
+      <button class="nav-tab" onclick="switchTab('minteo')">
+        <span class="nav-icon">✨</span>
+        <span>Minteo</span>
       </button>
-      <button class="nav-tab" onclick="switchTab('perfil')">
-        <span class="nav-icon">👤</span>
-        <span>Perfil</span>
+      <button class="nav-tab" onclick="switchTab('bolas')">
+        <span class="nav-icon">🐉</span>
+        <span>Shenron</span>
       </button>
     </div>
 
@@ -452,9 +353,7 @@
 
   <script>
     const tg = window.Telegram?.WebApp;
-    if (tg) {
-      tg.ready();
-    }
+    if (tg) { tg.ready(); }
 
     function closeModals() {
       document.querySelectorAll('.view-modal').forEach(el => el.classList.remove('active'));
@@ -470,10 +369,11 @@
       closeModals();
       document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
       
-      const btnIndex = ['ciudad', 'combates', 'clan', 'misiones', 'perfil'].indexOf(tabId);
+      const tabs = ['capsula', 'aldea', 'guerreros', 'planetas', 'minteo', 'bolas'];
+      const btnIndex = tabs.indexOf(tabId);
       if (btnIndex !== -1) document.querySelectorAll('.nav-tab')[btnIndex].classList.add('active');
 
-      if (tabId !== 'ciudad') {
+      if (tabId !== 'aldea') {
         openModal(tabId);
       }
     }
