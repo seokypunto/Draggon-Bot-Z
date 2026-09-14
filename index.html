@@ -76,12 +76,20 @@
     }
 
     .resources-bar {
-      display: flex; gap: 4px; background: rgba(0, 0, 0, 0.6);
+      display: flex; gap: 6px; background: rgba(0, 0, 0, 0.6);
       padding: 4px 8px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
     }
     .res-item {
-      display: flex; align-items: center; gap: 3px; font-size: 10px; font-weight: bold;
-      padding: 2px 5px; border-radius: 10px; background: rgba(255, 255, 255, 0.05);
+      display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: bold;
+      padding: 2px 6px; border-radius: 10px; background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* ESTILO ICONO ZENI EN BARRA SUPERIOR */
+    .icon-zeni {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.6));
     }
 
     /* VIEWPORT MAPA CON DRAG */
@@ -96,15 +104,11 @@
     }
     #map-viewport:active { cursor: grabbing; }
 
-    /* --- VISTA 1: ALDEA ISOMÉTRICA (TERRENO VERDE) --- */
+    /* --- VISTA 1: ALDEA ISOMÉTRICA --- */
     #map-canvas-aldea {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 1550px;
-      background: 
-        radial-gradient(circle at 50% 10%, #7CB342 0%, #4AF50 35%, #33691E 75%, #1B5E20 100%);
+      top: 0; left: 0; width: 100%; height: 1550px;
+      background: radial-gradient(circle at 50% 10%, #7CB342 0%, #4AF50 35%, #33691E 75%, #1B5E20 100%);
       background-image: 
         radial-gradient(rgba(255, 255, 255, 0.12) 2px, transparent 0),
         radial-gradient(rgba(0, 0, 0, 0.2) 1.5px, transparent 0);
@@ -112,7 +116,6 @@
       display: block;
     }
 
-    /* CAMINOS ALDEA */
     .path-iso {
       position: absolute;
       background: linear-gradient(90deg, #795548 0%, #8D6E63 50%, #6D4C41 100%);
@@ -121,46 +124,26 @@
       opacity: 0.85;
     }
 
-    /* SLOTS ALDEA */
     .iso-slot-wrapper {
-      position: absolute;
-      transform: translate(-50%, -50%);
-      width: 140px;
-      height: 120px;
-      cursor: pointer;
+      position: absolute; transform: translate(-50%, -50%);
+      width: 140px; height: 120px; cursor: pointer;
     }
 
     .iso-base {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      height: 80px;
+      position: absolute; bottom: 0; width: 100%; height: 80px;
       background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
-      border-radius: 20px;
-      transform: rotateX(55deg) rotateZ(-45deg);
+      border-radius: 20px; transform: rotateX(55deg) rotateZ(-45deg);
       box-shadow: -5px 5px 0px #0D3B10, -10px 10px 0px #061F08, -15px 20px 25px rgba(0,0,0,0.6);
-      border: 3px solid #66BB6A;
-      transition: all 0.2s ease;
+      border: 3px solid #66BB6A; transition: all 0.2s ease;
     }
     .iso-slot-wrapper:hover .iso-base {
       transform: rotateX(55deg) rotateZ(-45deg) translateZ(10px);
       border-color: var(--orange-gold);
     }
-    .iso-base.empty {
-      background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
-      border: 2px dashed rgba(255, 255, 255, 0.4);
-      box-shadow: -5px 5px 0px rgba(0,0,0,0.3);
-    }
 
     .iso-content {
-      position: absolute;
-      top: 5px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      z-index: 2;
+      position: absolute; top: 5px; left: 50%;
+      transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; z-index: 2;
     }
 
     .building-badge-3d {
@@ -176,17 +159,11 @@
       border: 1px solid var(--orange-gold); color: #FFF; white-space: nowrap;
     }
     .lvl-num { color: var(--orange-gold); }
-    .empty-plus { font-size: 26px; color: rgba(255,255,255,0.5); font-weight: bold; }
 
-    /* --- VISTA 2: GALAXIA Y PLANETAS 3D (ESPACIO DEEP SPACE) --- */
+    /* --- VISTA 2: GALAXIA Y PLANETAS 3D --- */
     #map-canvas-planetas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 1600px;
-      background: 
-        radial-gradient(circle at 50% 20%, #1A0B2E 0%, #08020F 50%, #030008 100%);
+      position: absolute; top: 0; left: 0; width: 100%; height: 1600px;
+      background: radial-gradient(circle at 50% 20%, #1A0B2E 0%, #08020F 50%, #030008 100%);
       background-image: 
         radial-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 0),
         radial-gradient(rgba(255, 255, 255, 0.2) 2px, transparent 0);
@@ -194,96 +171,35 @@
       display: none;
     }
 
-    /* ORBITAS EN EL ESPACIO */
-    .orbit-line {
-      position: absolute;
-      border: 1px dashed rgba(255, 255, 255, 0.15);
-      border-radius: 50%;
-      transform: translate(-50%, -50%) rotateX(70deg);
-      pointer-events: none;
-    }
-
-    /* ESTILO PLANETAS EN 3D CON VOLUMEN Y SOMBRAS INTERNAS */
     .planet-wrapper {
-      position: absolute;
-      transform: translate(-50%, -50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
+      position: absolute; transform: translate(-50%, -50%);
+      display: flex; flex-direction: column; align-items: center; cursor: pointer;
     }
 
     .planet-sphere {
-      position: relative;
-      border-radius: 50%;
-      box-shadow: 
-        inset -15px -15px 30px rgba(0,0,0,0.9),
-        0 0 25px rgba(255,255,255,0.15);
+      position: relative; border-radius: 50%;
+      box-shadow: inset -15px -15px 30px rgba(0,0,0,0.9), 0 0 25px rgba(255,255,255,0.15);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
     }
 
     .planet-wrapper:hover .planet-sphere {
       transform: scale(1.12);
-      box-shadow: 
-        inset -10px -10px 20px rgba(0,0,0,0.8),
-        0 0 35px var(--orange-gold);
+      box-shadow: inset -10px -10px 20px rgba(0,0,0,0.8), 0 0 35px var(--orange-gold);
     }
 
-    /* TEXTURAS / COLORES ESPECÍFICOS DE PLANETAS */
-    .planet-tierra {
-      width: 90px; height: 90px;
-      background: radial-gradient(circle at 35% 35%, #4FC3F7 0%, #0288D1 50%, #01579B 100%);
-      border: 1px solid rgba(255,255,255,0.3);
-    }
+    .planet-tierra { width: 90px; height: 90px; background: radial-gradient(circle at 35% 35%, #4FC3F7 0%, #0288D1 50%, #01579B 100%); }
+    .planet-namek { width: 100px; height: 100px; background: radial-gradient(circle at 35% 35%, #AED581 0%, #558B2F 50%, #1B5E20 100%); }
+    .planet-u1 { width: 85px; height: 85px; background: radial-gradient(circle at 35% 35%, #FF8A80 0%, #D32F2F 50%, #880E4F 100%); }
+    .planet-u2 { width: 95px; height: 95px; background: radial-gradient(circle at 35% 35%, #CE93D8 0%, #7B1FA2 50%, #4A148C 100%); }
+    .planet-u3 { width: 80px; height: 80px; background: radial-gradient(circle at 35% 35%, #FFE082 0%, #F57F17 50%, #E65100 100%); }
+    .planet-u4 { width: 90px; height: 90px; background: radial-gradient(circle at 35% 35%, #80CBC4 0%, #00695C 50%, #004D40 100%); }
+    .planet-u5 { width: 105px; height: 105px; background: radial-gradient(circle at 35% 35%, #CFD8DC 0%, #546E7A 50%, #263238 100%); }
 
-    .planet-namek {
-      width: 100px; height: 100px;
-      background: radial-gradient(circle at 35% 35%, #AED581 0%, #558B2F 50%, #1B5E20 100%);
-      border: 1px solid rgba(174,213,129,0.4);
-    }
-
-    .planet-u1 {
-      width: 85px; height: 85px;
-      background: radial-gradient(circle at 35% 35%, #FF8A80 0%, #D32F2F 50%, #880E4F 100%);
-    }
-
-    .planet-u2 {
-      width: 95px; height: 95px;
-      background: radial-gradient(circle at 35% 35%, #CE93D8 0%, #7B1FA2 50%, #4A148C 100%);
-    }
-
-    .planet-u3 {
-      width: 80px; height: 80px;
-      background: radial-gradient(circle at 35% 35%, #FFE082 0%, #F57F17 50%, #E65100 100%);
-    }
-
-    .planet-u4 {
-      width: 90px; height: 90px;
-      background: radial-gradient(circle at 35% 35%, #80CBC4 0%, #00695C 50%, #004D40 100%);
-    }
-
-    .planet-u5 {
-      width: 105px; height: 105px;
-      background: radial-gradient(circle at 35% 35%, #CFD8DC 0%, #546E7A 50%, #263238 100%);
-    }
-
-    /* ETANQUETA Y INFORMACIÓN DEL PLANETA */
     .planet-info {
-      margin-top: 8px;
-      background: rgba(10, 14, 22, 0.9);
-      border: 1px solid var(--orange-gold);
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 800;
-      color: #FFF;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.8);
-      display: flex;
-      align-items: center;
-      gap: 5px;
+      margin-top: 8px; background: rgba(10, 14, 22, 0.9);
+      border: 1px solid var(--orange-gold); padding: 4px 10px; border-radius: 12px;
+      font-size: 11px; font-weight: 800; color: #FFF; box-shadow: 0 4px 15px rgba(0,0,0,0.8);
     }
 
     /* BOTONES LATERALES CIRCULARES */
@@ -308,14 +224,30 @@
       background: var(--panel-bg); backdrop-filter: blur(10px);
       z-index: 25; display: none; padding: 20px; overflow-y: auto;
     }
-    .view-modal.active { display: block; }
+    .view-modal.active { display: flex; flex-direction: column; align-items: center; }
+    
     .modal-title {
       font-size: 18px; font-weight: bold; color: var(--orange-dbz);
       text-transform: uppercase; text-align: center; margin-bottom: 15px;
-      border-bottom: 1px solid var(--border-glow); padding-bottom: 8px; letter-spacing: 1px;
+      border-bottom: 1px solid var(--border-glow); padding-bottom: 8px; letter-spacing: 1px; width: 100%;
     }
 
-    /* BARRA INFERIOR DE NAVEGACIÓN (TUS 6 PESTAÑAS) */
+    /* ESTILO SECCIÓN SHENRON CON SU ASSET */
+    .shenron-hero {
+      width: 220px;
+      height: 220px;
+      object-fit: contain;
+      margin: 15px 0;
+      filter: drop-shadow(0 0 25px rgba(76, 175, 80, 0.4));
+      animation: floatShenron 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatShenron {
+      0% { transform: translateY(0px) scale(1); }
+      100% { transform: translateY(-10px) scale(1.03); }
+    }
+
+    /* BARRA INFERIOR DE NAVEGACIÓN */
     #nav-bar {
       background: #090B10; display: grid; grid-template-columns: repeat(6, 1fr);
       padding: 6px 2px 8px 2px; border-top: 1px solid var(--border-glow); z-index: 30;
@@ -347,7 +279,11 @@
         </div>
       </div>
       <div class="resources-bar">
-        <div class="res-item">💰 1.25K</div>
+        <!-- BALANCE DE MONEDAS CON ASSET ZENI -->
+        <div class="res-item">
+          <img src="./assets/zeni.png" alt="Zeni" class="icon-zeni" onerror="this.src='./assets/zeni'">
+          <span>1.25K</span>
+        </div>
         <div class="res-item">⚡ 100</div>
         <div class="res-item">🔮 0/7</div>
       </div>
@@ -356,11 +292,10 @@
     <!-- VIEWPORT MAPA CON DRAG & SCROLL -->
     <div id="map-viewport">
       
-      <!-- LIENZO 1: ALDEA ISOMÉTRICA (TERRENO) -->
+      <!-- LIENZO 1: ALDEA ISOMÉTRICA -->
       <div id="map-canvas-aldea" class="active-canvas">
         <div class="path-iso" style="top: 200px; left: 35%; width: 140px; height: 16px; transform: rotate(35deg);"></div>
         <div class="path-iso" style="top: 200px; left: 42%; width: 140px; height: 16px; transform: rotate(-35deg);"></div>
-        <div class="path-iso" style="top: 380px; left: 28%; width: 180px; height: 16px; transform: rotate(55deg);"></div>
 
         <div class="iso-slot-wrapper" style="top: 160px; left: 50%;" onclick="openModal('aldea-info')">
           <div class="iso-base" style="border-color: #FF8A80;"></div>
@@ -387,51 +322,36 @@
         </div>
       </div>
 
-      <!-- LIENZO 2: GALAXIA Y PLANETAS 3D EN VERTICAL -->
+      <!-- LIENZO 2: GALAXIA Y PLANETAS -->
       <div id="map-canvas-planetas">
-
-        <!-- PLANETA 1: LA TIERRA -->
         <div class="planet-wrapper" style="top: 160px; left: 50%;" onclick="alert('Explorando La Tierra')">
           <div class="planet-sphere planet-tierra"></div>
-          <div class="planet-info">🌍 Tierra (Origen)</div>
+          <div class="planet-info">🌍 Tierra</div>
         </div>
-
-        <!-- PLANETA 2: NAMEK -->
         <div class="planet-wrapper" style="top: 360px; left: 30%;" onclick="alert('Viajando a Namek')">
           <div class="planet-sphere planet-namek"></div>
           <div class="planet-info">🪐 Namek</div>
         </div>
-
-        <!-- PLANETA 3: UNIVERSO 1 -->
         <div class="planet-wrapper" style="top: 560px; left: 70%;" onclick="alert('Universo 1')">
           <div class="planet-sphere planet-u1"></div>
           <div class="planet-info">🔴 Universo 1</div>
         </div>
-
-        <!-- PLANETA 4: UNIVERSO 2 -->
         <div class="planet-wrapper" style="top: 760px; left: 32%;" onclick="alert('Universo 2')">
           <div class="planet-sphere planet-u2"></div>
           <div class="planet-info">🟣 Universo 2</div>
         </div>
-
-        <!-- PLANETA 5: UNIVERSO 3 -->
         <div class="planet-wrapper" style="top: 960px; left: 68%;" onclick="alert('Universo 3')">
           <div class="planet-sphere planet-u3"></div>
           <div class="planet-info">🟠 Universo 3</div>
         </div>
-
-        <!-- PLANETA 6: UNIVERSO 4 -->
         <div class="planet-wrapper" style="top: 1160px; left: 30%;" onclick="alert('Universo 4')">
           <div class="planet-sphere planet-u4"></div>
           <div class="planet-info">🟢 Universo 4</div>
         </div>
-
-        <!-- PLANETA 7: UNIVERSO 5 -->
         <div class="planet-wrapper" style="top: 1360px; left: 50%;" onclick="alert('Universo 5')">
           <div class="planet-sphere planet-u5"></div>
           <div class="planet-info">⚪ Universo 5</div>
         </div>
-
       </div>
 
       <!-- MENU FLOTANTE -->
@@ -444,13 +364,13 @@
       <!-- MODALES DE VISTA PARA OTRAS PESTAÑAS -->
       <div id="modal-capsula" class="view-modal">
         <div class="modal-title">🧪 Cápsula Corp Lab</div>
-        <p style="text-align: center; color: #AAA; font-size: 13px;">Tecnología e investigaciones especiales Cápsula.</p>
+        <p style="text-align: center; color: #AAA; font-size: 13px;">Tecnología e investigaciones especiales.</p>
         <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
       </div>
 
       <div id="modal-guerreros" class="view-modal">
         <div class="modal-title">⚔️ Escuadrón Z</div>
-        <p style="text-align: center; color: #AAA; font-size: 13px;">Gestión de luchadores, nivel de poder y formaciones de batalla.</p>
+        <p style="text-align: center; color: #AAA; font-size: 13px;">Gestión de luchadores y formaciones.</p>
         <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
       </div>
 
@@ -460,15 +380,17 @@
         <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
       </div>
 
+      <!-- MODAL SHENRON CON SU ASSET PNG -->
       <div id="modal-bolas" class="view-modal">
         <div class="modal-title">🐉 Altar de Shenron</div>
-        <p style="text-align: center; color: #AAA; font-size: 13px;">Reúne las 7 esferas del dragón para invocar a Shenron.</p>
+        <img src="./assets/shenron.png" alt="Shenron" class="shenron-hero">
+        <p style="text-align: center; color: #AAA; font-size: 13px; max-width: 280px;">Reúne las 7 esferas del dragón para invocar a Shenron y pedir tu deseo.</p>
         <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
       </div>
 
     </div>
 
-    <!-- BARRA DE NAVEGACIÓN INFERIOR (TUS 6 PESTAÑAS) -->
+    <!-- BARRA DE NAVEGACIÓN INFERIOR -->
     <div id="nav-bar">
       <button class="nav-tab" onclick="switchTab('capsula')">
         <span class="nav-icon">🧪</span>
@@ -509,9 +431,7 @@
     let startY = 0;
     let currentTranslateY = 0;
 
-    function getActiveCanvas() {
-      return activeCanvas;
-    }
+    function getActiveCanvas() { return activeCanvas; }
 
     const minTranslateY = () => viewport.clientHeight - getActiveCanvas().clientHeight;
     const maxTranslateY = 0;
@@ -521,7 +441,6 @@
       getActiveCanvas().style.transform = `translateY(${currentTranslateY}px)`;
     }
 
-    // DRAG Y TOUCH
     viewport.addEventListener('pointerdown', (e) => {
       if (e.target.closest('.iso-slot-wrapper') || e.target.closest('.planet-wrapper') || e.target.closest('.circle-btn') || e.target.closest('.view-modal')) return;
       isDragging = true;
@@ -540,7 +459,6 @@
       setTranslateY(currentTranslateY - e.deltaY);
     }, { passive: true });
 
-    // CONTROL DE PESTAÑAS
     function closeModals() {
       document.querySelectorAll('.view-modal').forEach(el => el.classList.remove('active'));
     }
@@ -553,11 +471,9 @@
       const btnIndex = tabs.indexOf(tabId);
       if (btnIndex !== -1) document.querySelectorAll('.nav-tab')[btnIndex].classList.add('active');
 
-      // Ocultar todos los mapas
       document.getElementById('map-canvas-aldea').style.display = 'none';
       document.getElementById('map-canvas-planetas').style.display = 'none';
 
-      // Reiniciar scroll vertical al cambiar
       currentTranslateY = 0;
 
       if (tabId === 'aldea') {
@@ -569,7 +485,6 @@
         activeCanvas.style.display = 'block';
         activeCanvas.style.transform = `translateY(0px)`;
       } else {
-        // En caso de abrir modales de Cápsula, Guerreros, etc.
         openModal(tabId);
       }
     }
