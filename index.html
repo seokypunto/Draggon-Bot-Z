@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Dragon Bot Z - 3D Realm</title>
+  <title>Dragon Bot Z - 2D Scroll Realm</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     :root {
       --orange-dbz: #FF9800;
@@ -85,8 +84,8 @@
       padding: 2px 5px; border-radius: 10px; background: rgba(255, 255, 255, 0.05);
     }
 
-    /* VIEWPORT 3D THREE.JS */
-    #canvas-container {
+    /* ÁREA DE JUEGO (VIEWPORT CON SCROLL Y DRAG) */
+    #map-viewport {
       flex: 1;
       position: relative;
       width: 100%;
@@ -94,28 +93,91 @@
       overflow: hidden;
       cursor: grab;
     }
-    #canvas-container:active { cursor: grabbing; }
+    #map-viewport:active { cursor: grabbing; }
 
-    /* ETIQUETAS 2D PROYECTADAS EN EL ESPACIO 3D */
-    .building-label {
+    /* CONTENEDOR DEL MAPA (MÁS ALTO QUE EL VIEWPORT PARA PERMITIR SCROLL VERTICAL) */
+    #map-canvas {
       position: absolute;
-      transform: translate(-50%, -100%);
-      background: rgba(10, 14, 22, 0.88);
-      backdrop-filter: blur(4px);
-      padding: 4px 8px;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 1500px; /* Mapa extensible hacia abajo */
+      background: radial-gradient(circle at 50% 20%, #689F38 0%, #33691E 70%, #1B5E20 100%);
+      background-image: 
+        radial-gradient(rgba(255, 255, 255, 0.08) 2px, transparent 0),
+        radial-gradient(rgba(0, 0, 0, 0.15) 1px, transparent 0);
+      background-size: 40px 40px, 20px 20px;
+      background-position: 0 0, 10px 10px;
+    }
+
+    /* CAMINOS EN EL TERRENO */
+    .path-line {
+      position: absolute;
+      background: #8D6E63;
+      border: 2px dashed #BCAAA4;
+      border-radius: 10px;
+      opacity: 0.6;
+    }
+
+    /* SLOTS DE CONSTRUCCIÓN */
+    .slot {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 130px;
+      height: 110px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 2px dashed rgba(255, 255, 255, 0.4);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(2px);
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.3);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .slot:hover {
+      background: rgba(255, 152, 0, 0.2);
+      border-color: var(--orange-dbz);
+      transform: translate(-50%, -50%) scale(1.03);
+    }
+
+    /* SLOTS OCUPADOS CON EDIFICIOS */
+    .slot.occupied {
+      border: 2px solid var(--orange-dbz);
+      background: rgba(15, 20, 30, 0.85);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,152,0,0.2);
+    }
+    
+    .building-icon {
+      font-size: 34px;
+      margin-bottom: 4px;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+    }
+
+    .slot-badge {
+      background: rgba(10, 14, 22, 0.9);
+      padding: 3px 8px;
       border-radius: 10px;
       font-size: 10px;
       font-weight: bold;
-      border: 1px solid var(--orange-dbz);
+      border: 1px solid var(--orange-gold);
       color: #fff;
-      pointer-events: none;
-      white-space: nowrap;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.6);
       display: flex;
       align-items: center;
       gap: 4px;
     }
-    .node-lvl { color: var(--orange-gold); }
+
+    .empty-plus {
+      font-size: 28px;
+      color: rgba(255,255,255,0.6);
+    }
+    .empty-label {
+      font-size: 10px;
+      color: rgba(255,255,255,0.7);
+      font-weight: 600;
+    }
 
     /* BOTONES LATERALES CIRCULARES */
     .floating-menu {
@@ -184,18 +246,85 @@
       </div>
     </div>
 
-    <!-- VIEWPORT MAPA 3D INTERACTIVO -->
-    <div id="canvas-container">
+    <!-- VIEWPORT CON DRAG & SCROLL -->
+    <div id="map-viewport">
       
+      <!-- LIENZO EXTENDIDO DEL MAPA -->
+      <div id="map-canvas">
+        
+        <!-- CAMINOS DE CONEXIÓN -->
+        <div class="path-line" style="top: 140px; left: 50%; width: 4px; height: 1100px; transform: translateX(-50%);"></div>
+
+        <!-- SLOTS EN DIFERENTES ALTURAS DE LA MAPA -->
+        
+        <!-- Slot 1: Casa Kame (Sede Principal) -->
+        <div class="slot occupied" style="top: 150px; left: 50%;" onclick="openModal('aldea-info')">
+          <div class="building-icon">🏠</div>
+          <div class="slot-badge">Nv. 30 Casa Kame</div>
+        </div>
+
+        <!-- Slot 2: Cápsula Corp -->
+        <div class="slot occupied" style="top: 320px; left: 28%;" onclick="switchTab('capsula')">
+          <div class="building-icon">🧪</div>
+          <div class="slot-badge">Nv. 28 Cápsula</div>
+        </div>
+
+        <!-- Slot 3: Dojo Z -->
+        <div class="slot occupied" style="top: 320px; left: 72%;" onclick="switchTab('guerreros')">
+          <div class="building-icon">⚔️</div>
+          <div class="slot-badge">Nv. 28 Dojo Z</div>
+        </div>
+
+        <!-- Slot 4: Altar de Shenron -->
+        <div class="slot occupied" style="top: 510px; left: 50%;" onclick="switchTab('bolas')">
+          <div class="building-icon">🐉</div>
+          <div class="slot-badge">7/7 Shenron</div>
+        </div>
+
+        <!-- Slot 5: Slot Vacío 1 -->
+        <div class="slot" style="top: 700px; left: 28%;" onclick="alert('Slot libre para construir nueva instalación')">
+          <div class="empty-plus">+</div>
+          <div class="empty-label">Slot Libre</div>
+        </div>
+
+        <!-- Slot 6: Expediciones Galácticas -->
+        <div class="slot occupied" style="top: 700px; left: 72%;" onclick="switchTab('planetas')">
+          <div class="building-icon">🌌</div>
+          <div class="slot-badge">Expediciones</div>
+        </div>
+
+        <!-- Slot 7: Tienda de Invocación -->
+        <div class="slot occupied" style="top: 890px; left: 50%;" onclick="switchTab('minteo')">
+          <div class="building-icon">✨</div>
+          <div class="slot-badge">Invocaciones</div>
+        </div>
+
+        <!-- Slot 8: Slot Vacío 2 -->
+        <div class="slot" style="top: 1080px; left: 28%;" onclick="alert('Slot libre para construir nueva instalación')">
+          <div class="empty-plus">+</div>
+          <div class="empty-label">Slot Libre</div>
+        </div>
+
+        <!-- Slot 9: Slot Vacío 3 -->
+        <div class="slot" style="top: 1080px; left: 72%;" onclick="alert('Slot libre para construir nueva instalación')">
+          <div class="empty-plus">+</div>
+          <div class="empty-label">Slot Libre</div>
+        </div>
+
+        <!-- Slot 10: Gran Altar Saiyan (Próximamente) -->
+        <div class="slot" style="top: 1270px; left: 50%; opacity: 0.6;" onclick="alert('Desbloquea al nivel 35')">
+          <div class="building-icon">🔒</div>
+          <div class="empty-label">Bloqueado (Nv. 35)</div>
+        </div>
+
+      </div>
+
       <!-- MENU FLOTANTE -->
       <div class="floating-menu">
         <div class="circle-btn">🎁 <span class="badge-dot"></span></div>
         <div class="circle-btn" style="border-color: #FFB300;">👑 <span class="badge-dot"></span></div>
         <div class="circle-btn">💬</div>
       </div>
-
-      <!-- ETIQUETAS PROYECTADAS DESDE EL ESPACIO 3D -->
-      <div id="labels-container"></div>
 
       <!-- MODALES DE VISTA -->
       <div id="modal-aldea-info" class="view-modal">
@@ -236,7 +365,7 @@
 
     </div>
 
-    <!-- BARRA DE NAVEGACIÓN INFERIOR (TUS 6 PESTAÑAS) -->
+    <!-- BARRA DE NAVEGACIÓN INFERIOR (TUS 6 PESTAÑAS INTACTAS) -->
     <div id="nav-bar">
       <button class="nav-tab" onclick="switchTab('capsula')">
         <span class="nav-icon">🧪</span>
@@ -270,220 +399,47 @@
     const tg = window.Telegram?.WebApp;
     if (tg) { tg.ready(); }
 
-    // ------------ MOTOR THREE.JS (MAPA 3D ISOMÉTRICO) ------------
-    const container = document.getElementById('canvas-container');
-    const labelsContainer = document.getElementById('labels-container');
+    // SISTEMA DE SCROLL Y DESPLAZAMIENTO (DRAG & TOUCH)
+    const viewport = document.getElementById('map-viewport');
+    const canvas = document.getElementById('map-canvas');
 
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x7ec0ee);
-    scene.fog = new THREE.FogExp2(0x7ec0ee, 0.015);
-
-    const aspect = container.clientWidth / container.clientHeight;
-    const d = 18;
-    const camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 1, 1000);
-    
-    camera.position.set(20, 25, 20);
-    camera.lookAt(0, 0, 0);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    container.appendChild(renderer.domElement);
-
-    // ILUMINACIÓN 3D
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambientLight);
-
-    const sunLight = new THREE.DirectionalLight(0xfffaed, 1.2);
-    sunLight.position.set(25, 40, 15);
-    sunLight.castShadow = true;
-    sunLight.shadow.mapSize.width = 2048;
-    sunLight.shadow.mapSize.height = 2048;
-    scene.add(sunLight);
-
-    // TERRENO 3D DE LA ALDEA
-    const islandGroup = new THREE.Group();
-
-    const terrainGeo = new THREE.CylinderGeometry(14, 15, 2, 8);
-    const terrainMat = new THREE.MeshToonMaterial({ color: 0x4CAF50 });
-    const terrain = new THREE.Mesh(terrainGeo, terrainMat);
-    terrain.position.y = -1;
-    terrain.receiveShadow = true;
-    islandGroup.add(terrain);
-
-    const rockGeo = new THREE.CylinderGeometry(15, 12, 4, 8);
-    const rockMat = new THREE.MeshToonMaterial({ color: 0x5D4037 });
-    const rock = new THREE.Mesh(rockGeo, rockMat);
-    rock.position.y = -4;
-    rock.receiveShadow = true;
-    islandGroup.add(rock);
-
-    scene.add(islandGroup);
-
-    // CONSTRUCCIÓN DE EDIFICIOS 3D
-    const interactiveObjects = [];
-
-    function createBuilding(meshGroup, name, level, id, x, z) {
-      meshGroup.position.set(x, 0, z);
-      scene.add(meshGroup);
-
-      meshGroup.userData = { id, name, level };
-      interactiveObjects.push(meshGroup);
-
-      const labelDiv = document.createElement('div');
-      labelDiv.className = 'building-label';
-      labelDiv.innerHTML = `<span class="node-lvl">${level}</span> ${name}`;
-      labelsContainer.appendChild(labelDiv);
-      meshGroup.userData.labelEl = labelDiv;
-
-      return meshGroup;
-    }
-
-    // 1. CASA KAME
-    const kameGroup = new THREE.Group();
-    const houseGeo = new THREE.BoxGeometry(4, 3, 5);
-    const houseMat = new THREE.MeshToonMaterial({ color: 0xFF8A80 });
-    const house = new THREE.Mesh(houseGeo, houseMat);
-    house.position.y = 1.5;
-    house.castShadow = true;
-    kameGroup.add(house);
-
-    const roofGeo = new THREE.SphereGeometry(3, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2);
-    const roofMat = new THREE.MeshToonMaterial({ color: 0xE53935 });
-    const roof = new THREE.Mesh(roofGeo, roofMat);
-    roof.position.y = 3;
-    roof.scale.set(1.1, 0.8, 1.2);
-    roof.castShadow = true;
-    kameGroup.add(roof);
-
-    createBuilding(kameGroup, "Casa Kame", 30, "aldea-info", 0, -1);
-
-    // 2. CÁPSULA CORP LAB
-    const capsulaGroup = new THREE.Group();
-    const domeGeo = new THREE.SphereGeometry(2.5, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
-    const domeMat = new THREE.MeshToonMaterial({ color: 0x80DEEA });
-    const dome = new THREE.Mesh(domeGeo, domeMat);
-    dome.position.y = 0;
-    dome.castShadow = true;
-    capsulaGroup.add(dome);
-
-    const ringGeo = new THREE.TorusGeometry(2.6, 0.3, 8, 24);
-    const ringMat = new THREE.MeshToonMaterial({ color: 0x00838F });
-    const ring = new THREE.Mesh(ringGeo, ringMat);
-    ring.rotation.x = Math.PI / 2;
-    ring.position.y = 0.5;
-    ring.castShadow = true;
-    capsulaGroup.add(ring);
-
-    createBuilding(capsulaGroup, "Cápsula Lab", 28, "capsula", -7, -4);
-
-    // 3. DOJO Z
-    const dojoGroup = new THREE.Group();
-    const dojoGeo = new THREE.CylinderGeometry(1, 3, 4, 4);
-    const dojoMat = new THREE.MeshToonMaterial({ color: 0xFFB74D });
-    const dojo = new THREE.Mesh(dojoGeo, dojoMat);
-    dojo.position.y = 2;
-    dojo.rotation.y = Math.PI / 4;
-    dojo.castShadow = true;
-    dojoGroup.add(dojo);
-
-    createBuilding(dojoGroup, "Dojo Z", 28, "guerreros", 7, -3);
-
-    // 4. ALTAR SHENRON
-    const dragonGroup = new THREE.Group();
-    const altarGeo = new THREE.CylinderGeometry(3, 3.5, 0.8, 12);
-    const altarMat = new THREE.MeshToonMaterial({ color: 0x424242 });
-    const altar = new THREE.Mesh(altarGeo, altarMat);
-    altar.position.y = 0.4;
-    altar.castShadow = true;
-    dragonGroup.add(altar);
-
-    const ballGeo = new THREE.SphereGeometry(1.2, 16, 16);
-    const ballMat = new THREE.MeshStandardMaterial({ color: 0xFFB300, emissive: 0xFF6F00, emissiveIntensity: 0.6 });
-    const ball = new THREE.Mesh(ballGeo, ballMat);
-    ball.position.y = 2.2;
-    ball.castShadow = true;
-    dragonGroup.add(ball);
-
-    createBuilding(dragonGroup, "Altar Shenron", "7/7", "bolas", 0, 7);
-
-    // PROYECCIÓN DE ETIQUETAS EN PANTALLA
-    const tempV = new THREE.Vector3();
-    function updateLabels() {
-      interactiveObjects.forEach(obj => {
-        obj.getWorldPosition(tempV);
-        tempV.y += 4.5;
-        tempV.project(camera);
-
-        const x = (tempV.x *  .5 + .5) * container.clientWidth;
-        const y = (tempV.y * -.5 + .5) * container.clientHeight;
-
-        if (obj.userData.labelEl) {
-          obj.userData.labelEl.style.transform = `translate(-50%, -100%) translate(${x}px,${y}px)`;
-        }
-      });
-    }
-
-    // ARRASTRAR PARA ROTAR MAPA
     let isDragging = false;
-    let previousMousePosition = { x: 0, y: 0 };
+    let startY = 0;
+    let currentTranslateY = 0;
+    let targetTranslateY = 0;
 
-    container.addEventListener('pointerdown', (e) => {
+    const minTranslateY = () => viewport.clientHeight - canvas.clientHeight;
+    const maxTranslateY = 0;
+
+    function setTranslateY(y) {
+      targetTranslateY = Math.max(minTranslateY(), Math.min(maxTranslateY, y));
+      currentTranslateY = targetTranslateY;
+      canvas.style.transform = `translateY(${currentTranslateY}px)`;
+    }
+
+    // Eventos de ratón y táctiles
+    viewport.addEventListener('pointerdown', (e) => {
+      // Ignorar clicks en botones o slots
+      if (e.target.closest('.slot') || e.target.closest('.circle-btn') || e.target.closest('.view-modal')) return;
       isDragging = true;
-      previousMousePosition = { x: e.clientX, y: e.clientY };
+      startY = e.clientY - currentTranslateY;
     });
 
-    container.addEventListener('pointermove', (e) => {
+    window.addEventListener('pointermove', (e) => {
       if (!isDragging) return;
-      const deltaX = e.clientX - previousMousePosition.x;
-
-      islandGroup.rotation.y += deltaX * 0.005;
-      interactiveObjects.forEach(obj => obj.rotation.y += deltaX * 0.005);
-
-      previousMousePosition = { x: e.clientX, y: e.clientY };
+      const currentY = e.clientY - startY;
+      setTranslateY(currentY);
     });
 
     window.addEventListener('pointerup', () => { isDragging = false; });
+    window.addEventListener('pointercancel', () => { isDragging = false; });
 
-    // RAYCASTING (CLIC EN EDIFICIOS)
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
+    // Scroll con la rueda del ratón
+    viewport.addEventListener('wheel', (e) => {
+      setTranslateY(currentTranslateY - e.deltaY);
+    }, { passive: true });
 
-    container.addEventListener('click', (e) => {
-      const rect = container.getBoundingClientRect();
-      mouse.x = ((e.clientX - rect.left) / container.clientWidth) * 2 - 1;
-      mouse.y = -((e.clientY - rect.top) / container.clientHeight) * 2 + 1;
-
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(interactiveObjects, true);
-
-      if (intersects.length > 0) {
-        let topGroup = intersects[0].object;
-        while (topGroup.parent && topGroup.parent !== scene) { topGroup = topGroup.parent; }
-        if (topGroup.userData && topGroup.userData.id) {
-          topGroup.position.y = 0.8;
-          setTimeout(() => topGroup.position.y = 0, 150);
-          
-          if (topGroup.userData.id === 'aldea-info') {
-            openModal('aldea-info');
-          } else {
-            switchTab(topGroup.userData.id);
-          }
-        }
-      }
-    });
-
-    // ANIMACIÓN CONTINUA
-    function animate() {
-      requestAnimationFrame(animate);
-      ball.position.y = 2.2 + Math.sin(Date.now() * 0.003) * 0.2;
-      renderer.render(scene, camera);
-      updateLabels();
-    }
-    animate();
-
+    // CONTROL DE PESTAÑAS Y MODALES
     function closeModals() {
       document.querySelectorAll('.view-modal').forEach(el => el.classList.remove('active'));
     }
