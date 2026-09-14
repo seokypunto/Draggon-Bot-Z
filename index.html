@@ -3,170 +3,471 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Dragon Bot Z - 3D Realm</title>
+  <title>Dragon Bot Z - Idle Realm</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <!-- Motor Gráfico 3D Three.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-    body { background-color: #05050A; color: #FFF; font-family: 'Segoe UI', sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-    
-    #top-bar { background: rgba(10, 10, 15, 0.85); backdrop-filter: blur(10px); padding: 12px 20px; display: flex; justify-content: space-between; border-bottom: 2px solid #FF9800; font-size: 14px; font-weight: bold; z-index: 10; box-shadow: 0 4px 15px rgba(255,152,0,0.2); }
-    .resource-item { display: flex; align-items: center; gap: 6px; text-shadow: 0 0 8px rgba(255,152,0,0.5); }
-    
-    #game-container { flex: 1; position: relative; width: 100%; height: 100%; overflow: hidden; }
-    canvas { width: 100%; height: 100%; display: block; }
-    
-    .view-panel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 10, 0.9); backdrop-filter: blur(8px); display: none; padding: 25px; overflow-y: auto; z-index: 5; }
-    .view-panel.active { display: block; }
-    .view-title { font-size: 22px; color: #FF9800; text-transform: uppercase; margin-bottom: 15px; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px; letter-spacing: 2px; }
+    :root {
+      --primary-color: #f39c12;
+      --bg-dark: #12161e;
+      --panel-bg: rgba(20, 26, 38, 0.92);
+      --border-light: rgba(255, 255, 255, 0.15);
+    }
 
-    #nav-bar { background: #05050A; display: grid; grid-template-columns: repeat(6, 1fr); border-top: 2px solid #222; z-index: 10; }
-    .nav-btn { background: none; border: none; color: #666; padding: 12px 2px; font-size: 10px; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.3s; }
-    .nav-btn.active { color: #FF9800; font-weight: bold; background: rgba(255, 152, 0, 0.15); border-top: 2px solid #FF9800; text-shadow: 0 0 10px rgba(255,152,0,0.8); }
-    .nav-btn span { font-size: 18px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    
+    body {
+      background-color: var(--bg-dark);
+      color: #fff;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
 
-    .gacha-card { background: rgba(255,255,255,0.03); border: 1px solid #333; border-radius: 12px; padding: 20px; margin-bottom: 15px; text-align: center; }
-    .btn-action { background: linear-gradient(45deg, #FF9800, #F57C00); border: none; color: #000; padding: 12px 24px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 10px; width: 100%; text-transform: uppercase; letter-spacing: 1px; }
+    /* BARRA SUPERIOR DE RECURSOS */
+    #header {
+      background: rgba(15, 22, 32, 0.85);
+      backdrop-filter: blur(8px);
+      padding: 8px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 20;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .profile-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .avatar-frame {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f39c12, #e67e22);
+      border: 2px solid #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      position: relative;
+    }
+
+    .level-tag {
+      position: absolute;
+      bottom: -4px;
+      left: -2px;
+      background: #e74c3c;
+      color: #fff;
+      font-size: 9px;
+      font-weight: bold;
+      padding: 1px 4px;
+      border-radius: 8px;
+      border: 1px solid #fff;
+    }
+
+    .resources-bar {
+      display: flex;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 4px 8px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .res-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* CONTENEDOR PRINCIPAL DEL MAPA */
+    #map-viewport {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      /* Fondo con gradiente simulando paisaje de colinas estilo Dragon Ball / Fantasía */
+      background: linear-gradient(to bottom, #74b9ff 0%, #a8e6cf 35%, #56ab2f 60%, #48b1bf 100%);
+    }
+
+    /* CAPA DE MAPA DE CORTE ISOMÉTRICO CON NODOS */
+    .map-canvas-layer {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+    }
+
+    /* EDIFICIOS / NODOS EN EL MAPA */
+    .map-node {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transform: translate(-50%, -50%);
+      transition: transform 0.2s ease;
+    }
+
+    .map-node:active {
+      transform: translate(-50%, -50%) scale(0.95);
+    }
+
+    /* Ilustración provisional para edificios estilo 2.5D */
+    .building-icon {
+      width: 75px;
+      height: 75px;
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+      border: 3px solid #1e8449;
+      border-radius: 20px;
+      box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      position: relative;
+    }
+
+    .building-icon.castle {
+      width: 95px; height: 95px;
+      background: linear-gradient(135deg, #e67e22, #f39c12);
+      border-color: #d35400;
+      font-size: 48px;
+    }
+
+    /* Etiqueta de nivel y nombre */
+    .node-label {
+      margin-top: 4px;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: bold;
+      border: 1px solid rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    .node-lvl {
+      color: #f1c40f;
+    }
+
+    /* BOCADILLO DE RECOLECCIÓN FLOTANTE (RECURSOS LISTOS) */
+    .collect-bubble {
+      position: absolute;
+      top: -20px;
+      background: #fff;
+      color: #333;
+      border-radius: 50%;
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      animation: float 2s infinite ease-in-out;
+      border: 2px solid #f39c12;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    /* MENÚS FLOTANTES LATERALES (BOTONES REDONDOS) */
+    .floating-menu {
+      position: absolute;
+      right: 12px;
+      top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 15;
+    }
+
+    .circle-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(20, 26, 38, 0.85);
+      border: 2px solid var(--primary-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      position: relative;
+      cursor: pointer;
+    }
+
+    .badge-dot {
+      position: absolute;
+      top: 0; right: 0;
+      width: 12px; height: 12px;
+      background: #e74c3c;
+      border-radius: 50%;
+      border: 2px solid #fff;
+    }
+
+    /* PESTAÑAS Y MODALES DE LAS SECCIONES */
+    .view-modal {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--panel-bg);
+      backdrop-filter: blur(10px);
+      z-index: 25;
+      display: none;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .view-modal.active { display: block; }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--primary-color);
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 15px;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 10px;
+    }
+
+    /* BARRA INFERIOR DE NAVEGACIÓN */
+    #nav-bar {
+      background: #0d1117;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      padding: 6px 4px 10px 4px;
+      border-top: 1px solid var(--border-light);
+      z-index: 30;
+    }
+
+    .nav-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: #8b949e;
+      font-size: 10px;
+      font-weight: 600;
+      gap: 3px;
+      cursor: pointer;
+      position: relative;
+      padding: 6px 0;
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+
+    .nav-tab.active {
+      color: #fff;
+      background: rgba(243, 156, 18, 0.2);
+    }
+
+    .nav-tab.active::before {
+      content: '';
+      position: absolute;
+      top: 0; width: 30px; height: 3px;
+      background: var(--primary-color);
+      border-radius: 3px;
+    }
+
+    .nav-icon { font-size: 20px; }
+
+    .notification-count {
+      position: absolute;
+      top: 2px; right: 12px;
+      background: #e74c3c;
+      color: #fff;
+      font-size: 9px;
+      font-weight: bold;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid #fff;
+    }
   </style>
 </head>
 <body>
 
-  <div id="top-bar">
-    <div class="resource-item">💰 Zeni: <span id="res-zeni">1,250</span></div>
-    <div class="resource-item">⚡ Stamina: <span id="res-stamina">100/100</span></div>
-    <div class="resource-item">🔮 Esferas: <span id="res-balls">0/7</span></div>
+  <!-- BARRA SUPERIOR DE RECURSOS -->
+  <div id="header">
+    <div class="profile-badge">
+      <div class="avatar-frame">
+        🐉
+        <span class="level-tag">Lvl.30</span>
+      </div>
+    </div>
+    <div class="resources-bar">
+      <div class="res-item">🌾 586K</div>
+      <div class="res-item">🪵 995K</div>
+      <div class="res-item">🪨 586K</div>
+      <div class="res-item">💎 99</div>
+    </div>
   </div>
 
-  <div id="game-container">
-    <canvas id="threeCanvas"></canvas>
-
-    <div id="view-capsula" class="view-panel">
-      <div class="view-title">🧪 Cápsula Corp</div>
-      <p style="text-align: center; color: #AAA;">Gestión de tecnología y bonus diarios.</p>
-    </div>
-
-    <div id="view-aldea" class="view-panel">
-      <!-- Transparente para interactuar con el render 3D -->
-    </div>
-
-    <div id="view-guerreros" class="view-panel">
-      <div class="view-title">⚔️ Escuadrón Z</div>
-      <p style="text-align: center; color: #AAA;">Lista de personajes y alineación de combate.</p>
-    </div>
-
-    <div id="view-planetas" class="view-panel">
-      <div class="view-title">🌌 Expediciones Galácticas</div>
-      <p style="text-align: center; color: #AAA;">Selecciona un planeta para recolectar recursos.</p>
-    </div>
-
-    <div id="view-minteo" class="view-panel">
-      <div class="view-title">✨ Tienda de Invocación</div>
-      <div class="gacha-card">
-        <h3>Caja Cápsula Z</h3>
-        <p style="font-size: 12px; color: #AAA; margin: 10px 0;">Consigue guerreros legendarios y artefactos.</p>
-        <button class="btn-action">Invocar Guerrero</button>
+  <!-- ÁREA DEL MAPA DEL JUEGO -->
+  <div id="map-viewport">
+    
+    <!-- MENU FLOTANTE DERECHO (OFERTAS / VIP) -->
+    <div class="floating-menu">
+      <div class="circle-btn">
+        🎁 <span class="badge-dot"></span>
+      </div>
+      <div class="circle-btn" style="border-color: #f1c40f;">
+        👑 <span class="badge-dot"></span>
+      </div>
+      <div class="circle-btn">
+        👥
+      </div>
+      <div class="circle-btn">
+        💬
       </div>
     </div>
 
-    <div id="view-bolas" class="view-panel">
-      <div class="view-title">🐉 Altar de Shenron</div>
-      <p style="text-align: center; color: #AAA;">Junta las 7 Esferas del Dragón.</p>
+    <!-- NODOS DEL MAPA (EDIFICIOS E INTERACTIVOS) -->
+    
+    <!-- CASTILLO CENTRAL -->
+    <div class="map-node" style="top: 32%; left: 50%;" onclick="openModal('castillo')">
+      <div class="building-icon castle">🏯</div>
+      <div class="node-label">
+        <span class="node-lvl">30</span> Castillo
+      </div>
     </div>
+
+    <!-- ASERRADERO -->
+    <div class="map-node" style="top: 52%; left: 25%;" onclick="openModal('aserradero')">
+      <div class="collect-bubble">🪵</div>
+      <div class="building-icon">🪓</div>
+      <div class="node-label">
+        <span class="node-lvl">28</span> Aserradero
+      </div>
+    </div>
+
+    <!-- GRANJA -->
+    <div class="map-node" style="top: 50%; left: 78%;" onclick="openModal('granja')">
+      <div class="collect-bubble">🌾</div>
+      <div class="building-icon" style="background: linear-gradient(135deg, #f1c40f, #f39c12);">🌾</div>
+      <div class="node-label">
+        <span class="node-lvl">28</span> Granja
+      </div>
+    </div>
+
+    <!-- CAMPO DE TIRO / ENTRENAMIENTO -->
+    <div class="map-node" style="top: 68%; left: 48%;" onclick="openModal('combates')">
+      <div class="building-icon" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">🎯</div>
+      <div class="node-label">
+        <span class="node-lvl">28</span> Campo Tiro
+      </div>
+    </div>
+
+    <!-- CUARTELES -->
+    <div class="map-node" style="top: 75%; left: 78%;" onclick="openModal('cuarteles')">
+      <div class="building-icon" style="background: linear-gradient(135deg, #8e44ad, #9b59b6);">⚔️</div>
+      <div class="node-label">
+        <span class="node-lvl">29</span> Cuarteles
+      </div>
+    </div>
+
+    <!-- ESTABLO -->
+    <div class="map-node" style="top: 85%; left: 32%;" onclick="openModal('establo')">
+      <div class="building-icon" style="background: linear-gradient(135deg, #d35400, #e67e22);">🐎</div>
+      <div class="node-label">
+        <span class="node-lvl">27</span> Establo
+      </div>
+    </div>
+
+    <!-- VENTANAS MODALES PARA CADA SECCIÓN -->
+    <div id="modal-castillo" class="view-modal">
+      <div class="modal-title">🏯 Castillo Principal (Nivel 30)</div>
+      <p style="text-align: center; color: #aaa;">Aquí puedes mejorar la sede central de tu aldea y desbloquear nuevos edificios.</p>
+      <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 10px 20px; border-radius: 8px; font-size: 14px;" onclick="closeModals()">Cerrar</button>
+    </div>
+
+    <div id="modal-combates" class="view-modal">
+      <div class="modal-title">⚔️ Zona de Combate</div>
+      <p style="text-align: center; color: #aaa;">Envia tu escuadrón a batallas PVE / PVP para conseguir gemas y esferas.</p>
+      <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 10px 20px; border-radius: 8px; font-size: 14px;" onclick="closeModals()">Cerrar</button>
+    </div>
+
+    <div id="modal-clan" class="view-modal">
+      <div class="modal-title">🛡️ Tu Clan</div>
+      <p style="text-align: center; color: #aaa;">Coopera con otros jugadores para derrotar jefes de mundo.</p>
+      <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 10px 20px; border-radius: 8px; font-size: 14px;" onclick="closeModals()">Cerrar</button>
+    </div>
+
+    <div id="modal-misiones" class="view-modal">
+      <div class="modal-title">📜 Misiones Diarias</div>
+      <p style="text-align: center; color: #aaa;">Completa tareas diarias para recibir recompensas especiales.</p>
+      <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 10px 20px; border-radius: 8px; font-size: 14px;" onclick="closeModals()">Cerrar</button>
+    </div>
+
   </div>
 
+  <!-- NAVEGACIÓN INFERIOR (ESTILO DE LA IMAGEN) -->
   <div id="nav-bar">
-    <button class="nav-btn" onclick="switchTab('capsula')"><span>🧪</span>Cápsula</button>
-    <button class="nav-btn active" onclick="switchTab('aldea')"><span>🏘️</span>Aldea 3D</button>
-    <button class="nav-btn" onclick="switchTab('guerreros')"><span>⚔️</span>Guerreros</button>
-    <button class="nav-btn" onclick="switchTab('planetas')"><span>🌌</span>Planetas</button>
-    <button class="nav-btn" onclick="switchTab('minteo')"><span>✨</span>Minteo</button>
-    <button class="nav-btn" onclick="switchTab('bolas')"><span>🐉</span>Shenron</button>
+    <button class="nav-tab active" onclick="switchTab('ciudad')">
+      <span class="nav-icon">🏰</span>
+      <span>Ciudad</span>
+    </button>
+    <button class="nav-tab" onclick="switchTab('combates')">
+      <span class="nav-icon">⚔️</span>
+      <span>Combates</span>
+    </button>
+    <button class="nav-tab" onclick="switchTab('clan')">
+      <span class="nav-icon">🛡️</span>
+      <span>Clan</span>
+    </button>
+    <button class="nav-tab" onclick="switchTab('misiones')">
+      <span class="nav-icon">📜</span>
+      <span>Misiones</span>
+      <span class="notification-count">1</span>
+    </button>
+    <button class="nav-tab" onclick="switchTab('perfil')">
+      <span class="nav-icon">👤</span>
+      <span>Perfil</span>
+    </button>
   </div>
 
   <script>
-    // Inicialización Telegram
+    // Inicialización del entorno de Telegram
     const tg = window.Telegram?.WebApp;
     if (tg) { tg.expand(); }
 
+    function closeModals() {
+      document.querySelectorAll('.view-modal').forEach(el => el.classList.remove('active'));
+    }
+
+    function openModal(id) {
+      closeModals();
+      const target = document.getElementById(`modal-${id}`);
+      if (target) target.classList.add('active');
+    }
+
     function switchTab(tabId) {
-      document.querySelectorAll('.view-panel').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      closeModals();
+      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
       
-      if (tabId !== 'aldea') {
-        const targetView = document.getElementById(`view-${tabId}`);
-        if (targetView) targetView.classList.add('active');
+      const btnIndex = ['ciudad', 'combates', 'clan', 'misiones', 'perfil'].indexOf(tabId);
+      if (btnIndex !== -1) document.querySelectorAll('.nav-tab')[btnIndex].classList.add('active');
+
+      if (tabId !== 'ciudad') {
+        openModal(tabId);
       }
-
-      const btnIndex = ['capsula', 'aldea', 'guerreros', 'planetas', 'minteo', 'bolas'].indexOf(tabId);
-      if (btnIndex !== -1) document.querySelectorAll('.nav-btn')[btnIndex].classList.add('active');
     }
-
-    // --- RENDERIZADOR 3D CON THREE.JS ---
-    const canvas = document.getElementById('threeCanvas');
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a0a14);
-    scene.fog = new THREE.FogExp2(0x0a0a14, 0.03);
-
-    const camera = new THREE.PerspectiveCamera(60, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
-    camera.position.set(0, 15, 25);
-    camera.lookAt(0, 0, 0);
-
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-    renderer.shadowMap.enabled = true;
-
-    // Iluminación
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-    scene.add(ambientLight);
-
-    const dirLight = new THREE.DirectionalLight(0xff9800, 1.2);
-    dirLight.position.set(20, 40, 20);
-    dirLight.castShadow = true;
-    scene.add(dirLight);
-
-    // Terreno 3D
-    const planeGeo = new THREE.PlaneGeometry(60, 60);
-    const planeMat = new THREE.MeshStandardMaterial({ color: 0x1b2631, roughness: 0.8 });
-    const terrain = new THREE.Mesh(planeGeo, planeMat);
-    terrain.rotation.x = -Math.PI / 2;
-    terrain.receiveShadow = true;
-    scene.add(terrain);
-
-    // Edificio Central (Casa Kame 3D Estructura)
-    const houseGroup = new THREE.Group();
-    
-    const baseGeo = new THREE.CylinderGeometry(4, 4, 3, 32);
-    const baseMat = new THREE.MeshStandardMaterial({ color: 0xe67e22 });
-    const base = new THREE.Mesh(baseGeo, baseMat);
-    base.position.y = 1.5;
-    base.castShadow = true;
-    houseGroup.add(base);
-
-    const roofGeo = new THREE.ConeGeometry(5, 2.5, 32);
-    const roofMat = new THREE.MeshStandardMaterial({ color: 0xc0392b });
-    const roof = new THREE.Mesh(roofGeo, roofMat);
-    roof.position.y = 4.25;
-    roof.castShadow = true;
-    houseGroup.add(roof);
-
-    scene.add(houseGroup);
-
-    // Animación de rotación / Render Loop
-    function animate() {
-      requestAnimationFrame(animate);
-      houseGroup.rotation.y += 0.005; // Rotación lenta de la estructura 3D
-      renderer.render(scene, camera);
-    }
-    animate();
-
-    window.addEventListener('resize', () => {
-      const width = canvas.parentElement.clientWidth;
-      const height = canvas.parentElement.clientHeight;
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
-    });
   </script>
 </body>
 </html>
