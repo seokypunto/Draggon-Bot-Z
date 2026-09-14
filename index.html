@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Dragon Bot Z - 2.5D Isometric Realm</title>
+  <title>Dragon Bot Z - Realm & Galaxy</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
@@ -27,7 +27,7 @@
       align-items: center;
     }
 
-    /* CONTENEDOR MARCO MÓVIL (TELEGRAM MINI APP SHELL) */
+    /* CONTENEDOR MARCO MÓVIL */
     #app-wrapper {
       width: 100%;
       max-width: 450px;
@@ -96,8 +96,8 @@
     }
     #map-viewport:active { cursor: grabbing; }
 
-    /* TERRENO 2.5D ILUSTRADO CON PROFUNDIDAD Y ISOMETRÍA */
-    #map-canvas {
+    /* --- VISTA 1: ALDEA ISOMÉTRICA (TERRENO VERDE) --- */
+    #map-canvas-aldea {
       position: absolute;
       top: 0;
       left: 0;
@@ -109,9 +109,10 @@
         radial-gradient(rgba(255, 255, 255, 0.12) 2px, transparent 0),
         radial-gradient(rgba(0, 0, 0, 0.2) 1.5px, transparent 0);
       background-size: 30px 30px, 15px 15px;
+      display: block;
     }
 
-    /* CAMINOS ORGÁNICOS EN DIAGONAL CON EFECTO DE TIERRA 3D */
+    /* CAMINOS ALDEA */
     .path-iso {
       position: absolute;
       background: linear-gradient(90deg, #795548 0%, #8D6E63 50%, #6D4C41 100%);
@@ -120,7 +121,7 @@
       opacity: 0.85;
     }
 
-    /* SLOTS ISOMÉTRICOS 2.5D CON VOLUMEN */
+    /* SLOTS ALDEA */
     .iso-slot-wrapper {
       position: absolute;
       transform: translate(-50%, -50%);
@@ -129,7 +130,6 @@
       cursor: pointer;
     }
 
-    /* BASE DEL SLOT (PEANA CON PERSPECTIVA Y GROSOR DE ROCA) */
     .iso-base {
       position: absolute;
       bottom: 0;
@@ -138,24 +138,20 @@
       background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
       border-radius: 20px;
       transform: rotateX(55deg) rotateZ(-45deg);
-      box-shadow: 
-        -5px 5px 0px #0D3B10,
-        -10px 10px 0px #061F08,
-        -15px 20px 25px rgba(0,0,0,0.6);
+      box-shadow: -5px 5px 0px #0D3B10, -10px 10px 0px #061F08, -15px 20px 25px rgba(0,0,0,0.6);
       border: 3px solid #66BB6A;
       transition: all 0.2s ease;
     }
-
     .iso-slot-wrapper:hover .iso-base {
       transform: rotateX(55deg) rotateZ(-45deg) translateZ(10px);
       border-color: var(--orange-gold);
-      box-shadow: 
-        -5px 5px 0px #E65100,
-        -10px 10px 0px #B71C1C,
-        -15px 25px 30px rgba(255,152,0,0.4);
+    }
+    .iso-base.empty {
+      background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+      border: 2px dashed rgba(255, 255, 255, 0.4);
+      box-shadow: -5px 5px 0px rgba(0,0,0,0.3);
     }
 
-    /* EDIFICIO / ICONO 3D LEVANTADO EN VERTICAL (BILLBOARDING) */
     .iso-content {
       position: absolute;
       top: 5px;
@@ -168,46 +164,127 @@
     }
 
     .building-badge-3d {
-      width: 60px;
-      height: 60px;
+      width: 60px; height: 60px;
       background: linear-gradient(135deg, #263238 0%, #102027 100%);
       border: 2px solid var(--orange-dbz);
-      border-radius: 16px;
+      border-radius: 16px; display: flex; align-items: center; justify-content: center;
+      font-size: 32px; box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+    }
+    .building-tag {
+      margin-top: 6px; background: rgba(10, 14, 22, 0.92);
+      padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 800;
+      border: 1px solid var(--orange-gold); color: #FFF; white-space: nowrap;
+    }
+    .lvl-num { color: var(--orange-gold); }
+    .empty-plus { font-size: 26px; color: rgba(255,255,255,0.5); font-weight: bold; }
+
+    /* --- VISTA 2: GALAXIA Y PLANETAS 3D (ESPACIO DEEP SPACE) --- */
+    #map-canvas-planetas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 1600px;
+      background: 
+        radial-gradient(circle at 50% 20%, #1A0B2E 0%, #08020F 50%, #030008 100%);
+      background-image: 
+        radial-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 0),
+        radial-gradient(rgba(255, 255, 255, 0.2) 2px, transparent 0);
+      background-size: 50px 50px, 90px 90px;
+      display: none;
+    }
+
+    /* ORBITAS EN EL ESPACIO */
+    .orbit-line {
+      position: absolute;
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      transform: translate(-50%, -50%) rotateX(70deg);
+      pointer-events: none;
+    }
+
+    /* ESTILO PLANETAS EN 3D CON VOLUMEN Y SOMBRAS INTERNAS */
+    .planet-wrapper {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .planet-sphere {
+      position: relative;
+      border-radius: 50%;
+      box-shadow: 
+        inset -15px -15px 30px rgba(0,0,0,0.9),
+        0 0 25px rgba(255,255,255,0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 32px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.6), inset 0 0 10px rgba(255,152,0,0.3);
-      filter: drop-shadow(0 8px 6px rgba(0,0,0,0.5));
-      transition: transform 0.2s;
     }
 
-    .iso-slot-wrapper:hover .building-badge-3d {
-      transform: scale(1.1) translateY(-5px);
+    .planet-wrapper:hover .planet-sphere {
+      transform: scale(1.12);
+      box-shadow: 
+        inset -10px -10px 20px rgba(0,0,0,0.8),
+        0 0 35px var(--orange-gold);
     }
 
-    .building-tag {
-      margin-top: 6px;
-      background: rgba(10, 14, 22, 0.92);
-      backdrop-filter: blur(4px);
-      padding: 3px 8px;
-      border-radius: 10px;
-      font-size: 10px;
-      font-weight: 800;
+    /* TEXTURAS / COLORES ESPECÍFICOS DE PLANETAS */
+    .planet-tierra {
+      width: 90px; height: 90px;
+      background: radial-gradient(circle at 35% 35%, #4FC3F7 0%, #0288D1 50%, #01579B 100%);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .planet-namek {
+      width: 100px; height: 100px;
+      background: radial-gradient(circle at 35% 35%, #AED581 0%, #558B2F 50%, #1B5E20 100%);
+      border: 1px solid rgba(174,213,129,0.4);
+    }
+
+    .planet-u1 {
+      width: 85px; height: 85px;
+      background: radial-gradient(circle at 35% 35%, #FF8A80 0%, #D32F2F 50%, #880E4F 100%);
+    }
+
+    .planet-u2 {
+      width: 95px; height: 95px;
+      background: radial-gradient(circle at 35% 35%, #CE93D8 0%, #7B1FA2 50%, #4A148C 100%);
+    }
+
+    .planet-u3 {
+      width: 80px; height: 80px;
+      background: radial-gradient(circle at 35% 35%, #FFE082 0%, #F57F17 50%, #E65100 100%);
+    }
+
+    .planet-u4 {
+      width: 90px; height: 90px;
+      background: radial-gradient(circle at 35% 35%, #80CBC4 0%, #00695C 50%, #004D40 100%);
+    }
+
+    .planet-u5 {
+      width: 105px; height: 105px;
+      background: radial-gradient(circle at 35% 35%, #CFD8DC 0%, #546E7A 50%, #263238 100%);
+    }
+
+    /* ETANQUETA Y INFORMACIÓN DEL PLANETA */
+    .planet-info {
+      margin-top: 8px;
+      background: rgba(10, 14, 22, 0.9);
       border: 1px solid var(--orange-gold);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 800;
       color: #FFF;
-      white-space: nowrap;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
-    .lvl-num { color: var(--orange-gold); }
-
-    /* ESTILO SLOT VACÍO */
-    .iso-base.empty {
-      background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
-      border: 2px dashed rgba(255, 255, 255, 0.4);
-      box-shadow: -5px 5px 0px rgba(0,0,0,0.3);
-    }
-    .empty-plus { font-size: 26px; color: rgba(255,255,255,0.5); font-weight: bold; }
 
     /* BOTONES LATERALES CIRCULARES */
     .floating-menu {
@@ -225,7 +302,7 @@
       background: #E53935; border-radius: 50%; border: 2px solid #FFF;
     }
 
-    /* PESTAÑAS / MODALES DE SECCIONES */
+    /* MODALES DE SECCIONES */
     .view-modal {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       background: var(--panel-bg); backdrop-filter: blur(10px);
@@ -276,23 +353,15 @@
       </div>
     </div>
 
-    <!-- VIEWPORT MAPA 2.5D -->
+    <!-- VIEWPORT MAPA CON DRAG & SCROLL -->
     <div id="map-viewport">
       
-      <!-- LIENZO EXTENDIDO DE LA ALDEA ISOMÉTRICA -->
-      <div id="map-canvas">
-        
-        <!-- CAMINOS EN DIAGONAL CON PERSPECTIVA -->
+      <!-- LIENZO 1: ALDEA ISOMÉTRICA (TERRENO) -->
+      <div id="map-canvas-aldea" class="active-canvas">
         <div class="path-iso" style="top: 200px; left: 35%; width: 140px; height: 16px; transform: rotate(35deg);"></div>
         <div class="path-iso" style="top: 200px; left: 42%; width: 140px; height: 16px; transform: rotate(-35deg);"></div>
         <div class="path-iso" style="top: 380px; left: 28%; width: 180px; height: 16px; transform: rotate(55deg);"></div>
-        <div class="path-iso" style="top: 380px; left: 48%; width: 180px; height: 16px; transform: rotate(-55deg);"></div>
-        <div class="path-iso" style="top: 600px; left: 35%; width: 150px; height: 16px; transform: rotate(40deg);"></div>
-        <div class="path-iso" style="top: 800px; left: 30%; width: 180px; height: 16px; transform: rotate(-45deg);"></div>
 
-        <!-- SLOTS ISOMÉTRICOS CON PROFUNDIDAD -->
-
-        <!-- Slot 1: Casa Kame (Sede Principal) -->
         <div class="iso-slot-wrapper" style="top: 160px; left: 50%;" onclick="openModal('aldea-info')">
           <div class="iso-base" style="border-color: #FF8A80;"></div>
           <div class="iso-content">
@@ -301,7 +370,6 @@
           </div>
         </div>
 
-        <!-- Slot 2: Cápsula Corp -->
         <div class="iso-slot-wrapper" style="top: 340px; left: 26%;" onclick="switchTab('capsula')">
           <div class="iso-base" style="border-color: #80DEEA;"></div>
           <div class="iso-content">
@@ -310,7 +378,6 @@
           </div>
         </div>
 
-        <!-- Slot 3: Dojo Z -->
         <div class="iso-slot-wrapper" style="top: 340px; left: 74%;" onclick="switchTab('guerreros')">
           <div class="iso-base" style="border-color: #FFB74D;"></div>
           <div class="iso-content">
@@ -318,68 +385,51 @@
             <div class="building-tag"><span class="lvl-num">Nv. 28</span> Dojo Z</div>
           </div>
         </div>
+      </div>
 
-        <!-- Slot 4: Altar de Shenron -->
-        <div class="iso-slot-wrapper" style="top: 540px; left: 50%;" onclick="switchTab('bolas')">
-          <div class="iso-base" style="border-color: #FFD54F;"></div>
-          <div class="iso-content">
-            <div class="building-badge-3d" style="border-color: #FFD54F;">🐉</div>
-            <div class="building-tag"><span class="lvl-num">7/7</span> Shenron</div>
-          </div>
+      <!-- LIENZO 2: GALAXIA Y PLANETAS 3D EN VERTICAL -->
+      <div id="map-canvas-planetas">
+
+        <!-- PLANETA 1: LA TIERRA -->
+        <div class="planet-wrapper" style="top: 160px; left: 50%;" onclick="alert('Explorando La Tierra')">
+          <div class="planet-sphere planet-tierra"></div>
+          <div class="planet-info">🌍 Tierra (Origen)</div>
         </div>
 
-        <!-- Slot 5: Slot Libre 1 -->
-        <div class="iso-slot-wrapper" style="top: 730px; left: 26%;" onclick="alert('Slot libre para construir nueva instalación')">
-          <div class="iso-base empty"></div>
-          <div class="iso-content" style="top: 25px;">
-            <div class="empty-plus">+</div>
-            <div class="building-tag" style="border-color: #888;">Slot Libre</div>
-          </div>
+        <!-- PLANETA 2: NAMEK -->
+        <div class="planet-wrapper" style="top: 360px; left: 30%;" onclick="alert('Viajando a Namek')">
+          <div class="planet-sphere planet-namek"></div>
+          <div class="planet-info">🪐 Namek</div>
         </div>
 
-        <!-- Slot 6: Expediciones Galácticas -->
-        <div class="iso-slot-wrapper" style="top: 730px; left: 74%;" onclick="switchTab('planetas')">
-          <div class="iso-base" style="border-color: #9C27B0;"></div>
-          <div class="iso-content">
-            <div class="building-badge-3d" style="border-color: #9C27B0;">🌌</div>
-            <div class="building-tag">Expediciones</div>
-          </div>
+        <!-- PLANETA 3: UNIVERSO 1 -->
+        <div class="planet-wrapper" style="top: 560px; left: 70%;" onclick="alert('Universo 1')">
+          <div class="planet-sphere planet-u1"></div>
+          <div class="planet-info">🔴 Universo 1</div>
         </div>
 
-        <!-- Slot 7: Tienda de Invocación -->
-        <div class="iso-slot-wrapper" style="top: 920px; left: 50%;" onclick="switchTab('minteo')">
-          <div class="iso-base" style="border-color: #E91E63;"></div>
-          <div class="iso-content">
-            <div class="building-badge-3d" style="border-color: #E91E63;">✨</div>
-            <div class="building-tag">Invocaciones</div>
-          </div>
+        <!-- PLANETA 4: UNIVERSO 2 -->
+        <div class="planet-wrapper" style="top: 760px; left: 32%;" onclick="alert('Universo 2')">
+          <div class="planet-sphere planet-u2"></div>
+          <div class="planet-info">🟣 Universo 2</div>
         </div>
 
-        <!-- Slot 8: Slot Libre 2 -->
-        <div class="iso-slot-wrapper" style="top: 1110px; left: 26%;" onclick="alert('Slot libre para construir')">
-          <div class="iso-base empty"></div>
-          <div class="iso-content" style="top: 25px;">
-            <div class="empty-plus">+</div>
-            <div class="building-tag" style="border-color: #888;">Slot Libre</div>
-          </div>
+        <!-- PLANETA 5: UNIVERSO 3 -->
+        <div class="planet-wrapper" style="top: 960px; left: 68%;" onclick="alert('Universo 3')">
+          <div class="planet-sphere planet-u3"></div>
+          <div class="planet-info">🟠 Universo 3</div>
         </div>
 
-        <!-- Slot 9: Slot Libre 3 -->
-        <div class="iso-slot-wrapper" style="top: 1110px; left: 74%;" onclick="alert('Slot libre para construir')">
-          <div class="iso-base empty"></div>
-          <div class="iso-content" style="top: 25px;">
-            <div class="empty-plus">+</div>
-            <div class="building-tag" style="border-color: #888;">Slot Libre</div>
-          </div>
+        <!-- PLANETA 6: UNIVERSO 4 -->
+        <div class="planet-wrapper" style="top: 1160px; left: 30%;" onclick="alert('Universo 4')">
+          <div class="planet-sphere planet-u4"></div>
+          <div class="planet-info">🟢 Universo 4</div>
         </div>
 
-        <!-- Slot 10: Bloqueado -->
-        <div class="iso-slot-wrapper" style="top: 1300px; left: 50%; opacity: 0.6;" onclick="alert('Desbloquea al nivel 35')">
-          <div class="iso-base empty"></div>
-          <div class="iso-content" style="top: 20px;">
-            <div style="font-size: 24px;">🔒</div>
-            <div class="building-tag">Nv. 35 Requerido</div>
-          </div>
+        <!-- PLANETA 7: UNIVERSO 5 -->
+        <div class="planet-wrapper" style="top: 1360px; left: 50%;" onclick="alert('Universo 5')">
+          <div class="planet-sphere planet-u5"></div>
+          <div class="planet-info">⚪ Universo 5</div>
         </div>
 
       </div>
@@ -391,13 +441,7 @@
         <div class="circle-btn">💬</div>
       </div>
 
-      <!-- MODALES DE VISTA -->
-      <div id="modal-aldea-info" class="view-modal">
-        <div class="modal-title">🏠 Casa Kame (Sede)</div>
-        <p style="text-align: center; color: #AAA; font-size: 13px;">Nivel de la base principal: 30.<br>Aumenta la producción global de energía y recursos.</p>
-        <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
-      </div>
-
+      <!-- MODALES DE VISTA PARA OTRAS PESTAÑAS -->
       <div id="modal-capsula" class="view-modal">
         <div class="modal-title">🧪 Cápsula Corp Lab</div>
         <p style="text-align: center; color: #AAA; font-size: 13px;">Tecnología e investigaciones especiales Cápsula.</p>
@@ -407,12 +451,6 @@
       <div id="modal-guerreros" class="view-modal">
         <div class="modal-title">⚔️ Escuadrón Z</div>
         <p style="text-align: center; color: #AAA; font-size: 13px;">Gestión de luchadores, nivel de poder y formaciones de batalla.</p>
-        <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
-      </div>
-
-      <div id="modal-planetas" class="view-modal">
-        <div class="modal-title">🌌 Expediciones Galácticas</div>
-        <p style="text-align: center; color: #AAA; font-size: 13px;">Envía expediciones a Namek, Planeta Vegeta y Metamor.</p>
         <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
       </div>
 
@@ -464,24 +502,28 @@
     const tg = window.Telegram?.WebApp;
     if (tg) { tg.ready(); }
 
-    // SISTEMA DE DRAG & SCROLL SUAVE (MÓVIL Y RATÓN)
     const viewport = document.getElementById('map-viewport');
-    const canvas = document.getElementById('map-canvas');
+    let activeCanvas = document.getElementById('map-canvas-aldea');
 
     let isDragging = false;
     let startY = 0;
     let currentTranslateY = 0;
 
-    const minTranslateY = () => viewport.clientHeight - canvas.clientHeight;
+    function getActiveCanvas() {
+      return activeCanvas;
+    }
+
+    const minTranslateY = () => viewport.clientHeight - getActiveCanvas().clientHeight;
     const maxTranslateY = 0;
 
     function setTranslateY(y) {
       currentTranslateY = Math.max(minTranslateY(), Math.min(maxTranslateY, y));
-      canvas.style.transform = `translateY(${currentTranslateY}px)`;
+      getActiveCanvas().style.transform = `translateY(${currentTranslateY}px)`;
     }
 
+    // DRAG Y TOUCH
     viewport.addEventListener('pointerdown', (e) => {
-      if (e.target.closest('.iso-slot-wrapper') || e.target.closest('.circle-btn') || e.target.closest('.view-modal')) return;
+      if (e.target.closest('.iso-slot-wrapper') || e.target.closest('.planet-wrapper') || e.target.closest('.circle-btn') || e.target.closest('.view-modal')) return;
       isDragging = true;
       startY = e.clientY - currentTranslateY;
     });
@@ -498,15 +540,9 @@
       setTranslateY(currentTranslateY - e.deltaY);
     }, { passive: true });
 
-    // CONTROL DE MODALES Y PESTAÑAS
+    // CONTROL DE PESTAÑAS
     function closeModals() {
       document.querySelectorAll('.view-modal').forEach(el => el.classList.remove('active'));
-    }
-
-    function openModal(id) {
-      closeModals();
-      const target = document.getElementById(`modal-${id}`);
-      if (target) target.classList.add('active');
     }
 
     function switchTab(tabId) {
@@ -517,9 +553,31 @@
       const btnIndex = tabs.indexOf(tabId);
       if (btnIndex !== -1) document.querySelectorAll('.nav-tab')[btnIndex].classList.add('active');
 
-      if (tabId !== 'aldea') {
+      // Ocultar todos los mapas
+      document.getElementById('map-canvas-aldea').style.display = 'none';
+      document.getElementById('map-canvas-planetas').style.display = 'none';
+
+      // Reiniciar scroll vertical al cambiar
+      currentTranslateY = 0;
+
+      if (tabId === 'aldea') {
+        activeCanvas = document.getElementById('map-canvas-aldea');
+        activeCanvas.style.display = 'block';
+        activeCanvas.style.transform = `translateY(0px)`;
+      } else if (tabId === 'planetas') {
+        activeCanvas = document.getElementById('map-canvas-planetas');
+        activeCanvas.style.display = 'block';
+        activeCanvas.style.transform = `translateY(0px)`;
+      } else {
+        // En caso de abrir modales de Cápsula, Guerreros, etc.
         openModal(tabId);
       }
+    }
+
+    function openModal(id) {
+      closeModals();
+      const target = document.getElementById(`modal-${id}`);
+      if (target) target.classList.add('active');
     }
   </script>
 </body>
