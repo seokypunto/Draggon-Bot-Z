@@ -1,1 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Dragon Bot Z - Idle Game</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body { background-color: #12131C; color: #FFF; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+    
+    /* CABECERA SUPERIOR (RECURSOS) */
+    #top-bar { background: rgba(0,0,0,0.8); padding: 10px 15px; display: flex; justify-content: space-between; border-bottom: 2px solid #FF9800; font-size: 14px; font-weight: bold; z-index: 10; }
+    .resource-item { display: flex; align-items: center; gap: 5px; }
+    
+    /* ÁREA DEL MAPA / JUEGO EN CANVAS */
+    #game-container { flex: 1; position: relative; width: 100%; height: 100%; overflow: hidden; background: #1B2631; }
+    canvas { width: 100%; height: 100%; display: block; }
+    
+    /* CONTENEDOR VISTA MODAL / SECCIONES */
+    .view-panel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(18, 19, 28, 0.95); display: none; padding: 20px; overflow-y: auto; z-index: 5; }
+    .view-panel.active { display: block; }
+    .view-title { font-size: 20px; color: #FF9800; text-transform: uppercase; margin-bottom: 15px; text-align: center; border-bottom: 1px solid #333; padding-bottom: 8px; }
 
+    /* MENÚ INFERIOR DE 6 SECCIONES */
+    #nav-bar { background: #0A0A0E; display: grid; grid-template-columns: repeat(6, 1fr); border-top: 2px solid #333; z-index: 10; }
+    .nav-btn { background: none; border: none; color: #888; padding: 12px 2px; font-size: 10px; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s; }
+    .nav-btn.active { color: #FF9800; font-weight: bold; background: rgba(255, 152, 0, 0.1); border-top: 2px solid #FF9800; }
+    .nav-btn span { font-size: 16px; }
+
+    /* ESTILOS DE GACHA / SUMMON */
+    .gacha-card { background: #1F2430; border: 1px solid #333; border-radius: 8px; padding: 15px; margin-bottom: 15px; text-align: center; }
+    .gacha-card.basic { border-color: #4CAF50; }
+    .gacha-card.premium { border-color: #9C27B0; }
+    .btn-action { background: #FF9800; border: none; color: #000; padding: 10px 20px; font-weight: bold; border-radius: 5px; cursor: pointer; margin-top: 10px; width: 100%; }
+  </style>
+</head>
+<body>
+
+  <!-- CABECERA DE RECURSOS -->
+  <div id="top-bar">
+    <div class="resource-item">💰 Zeni: <span id="res-zeni">1,250</span></div>
+    <div class="resource-item">⚡ Stamina: <span id="res-stamina">100/100</span></div>
+    <div class="resource-item">🔮 Esferas: <span id="res-balls">0/7</span></div>
+  </div>
+
+  <!-- CONTENEDOR DEL CANVAS GRÁFICO (MAPA DE ALDEA/GALAXIA) -->
+  <div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- PESTAÑA 1: CÁPSULA -->
+    <div id="view-capsula" class="view-panel">
+      <div class="view-title">🧪 Cápsula Corp</div>
+      <p>Gestión de recompensas diarias y selección de héroes temporales.</p>
+    </div>
+
+    <!-- PESTAÑA 2: ALDEA -->
+    <div id="view-aldea" class="view-panel active">
+      <div class="view-title">🏘️ Aldea Principal</div>
+      <p style="text-align: center; color: #AAA; font-size: 12px;">Usa el dedo/ratón para explorar el lienzo 2D en pantalla.</p>
+    </div>
+
+    <!-- PESTAÑA 3: GUERREROS -->
+    <div id="view-guerreros" class="view-panel">
+      <div class="view-title">⚔️ Tu Escuadrón</div>
+      <p>Gestión de inventario de personajes, fusiones y bono del líder (Krilin).</p>
+    </div>
+
+    <!-- PESTAÑA 4: PLANETAS -->
+    <div id="view-planetas" class="view-panel">
+      <div class="view-title">🌌 Mapa Galáctico</div>
+      <p>Envía tus escuadrones a expediciones temporizadas con el boost de Dende.</p>
+    </div>
+
+    <!-- PESTAÑA 5: MINTEO / GACHA -->
+    <div id="view-minteo" class="view-panel">
+      <div class="view-title">✨ Tienda de Invocación</div>
+      
+      <div class="gacha-card basic">
+        <h3>Caja Básica</h3>
+        <p style="font-size: 12px; color: #AAA; margin-top: 5px;">Probabilidades: 75% Común | 25% Raro</p>
+        <button class="btn-action" onclick="mintear('basica')">Mintear ($5 USD)</button>
+      </div>
+
+      <div class="gacha-card premium">
+        <h3>Caja Premium</h3>
+        <p style="font-size: 12px; color: #AAA; margin-top: 5px;">Probabilidades: 65% Raro | 30% Épico | 5% Legendario</p>
+        <button class="btn-action" style="background: #9C27B0; color: #FFF;" onclick="mintear('premium')">Mintear ($15 USD)</button>
+      </div>
+
+      <div id="minteo-resultado" style="margin-top: 15px; text-align: center; font-weight: bold;"></div>
+    </div>
+
+    <!-- PESTAÑA 6: BOLAS DE DRAGÓN -->
+    <div id="view-bolas" class="view-panel">
+      <div class="view-title">🐉 Invocación de Shenron</div>
+      <p>Reúne las 7 esferas con exploradores para pedir deseos legendarios.</p>
+    </div>
+  </div>
+
+  <!-- NAVEGACIÓN DE 6 SECCIONES -->
+  <div id="nav-bar">
+    <button class="nav-btn" onclick="switchTab('capsula')"><span>🧪</span>Cápsula</button>
+    <button class="nav-btn active" onclick="switchTab('aldea')"><span>🏘️</span>Aldea</button>
+    <button class="nav-btn" onclick="switchTab('guerreros')"><span>⚔️</span>Guerreros</button>
+    <button class="nav-btn" onclick="switchTab('planetas')"><span>🌌</span>Planetas</button>
+    <button class="nav-btn" onclick="switchTab('minteo')"><span>✨</span>Minteo</button>
+    <button class="nav-btn" onclick="switchTab('bolas')"><span>🐉</span>Shenron</button>
+  </div>
+
+  <script>
+    // Inicialización del entorno de Telegram
+    const tg = window.Telegram?.WebApp;
+    if (tg) { tg.expand(); }
+
+    // Cambiar de sección en el menú
+    function switchTab(tabId) {
+      document.querySelectorAll('.view-panel').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      
+      const targetView = document.getElementById(`view-${tabId}`);
+      if (targetView) targetView.classList.add('active');
+
+      const btnIndex = ['capsula', 'aldea', 'guerreros', 'planetas', 'minteo', 'bolas'].indexOf(tabId);
+      if (btnIndex !== -1) document.querySelectorAll('.nav-btn')[btnIndex].classList.add('active');
+    }
+
+    // Petición al Backend para el Minteo
+    async function mintear(tipoCaja) {
+      const resDiv = document.getElementById('minteo-resultado');
+      resDiv.innerText = ' Invocando...';
+
+      try {
+        // Enlace temporal al localhost o servidor backend
+        const res = await fetch('http://localhost:3000/api/mintear', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tipoCaja })
+        });
+        const data = await res.json();
+        
+        if (data.exito) {
+          resDiv.innerHTML = `🎉 ¡Obtenido: <span style="color:#FF9800">${data.personaje.nombre}</span> (${data.personaje.rareza})!`;
+        }
+      } catch (err) {
+        resDiv.innerText = ' Error conectando con el servidor backend.';
+      }
+    }
+
+    // RENDERIZADO BÁSICO DE MAPA EN CANVAS (LIENZO 2D)
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    function resizeCanvas() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+      drawMap();
+    }
+
+    function drawMap() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Fondo verde del terreno de la aldea
+      ctx.fillStyle = '#273746';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Dibujar cuadricula/terreno interactivo
+      ctx.strokeStyle = '#2C3E50';
+      ctx.lineWidth = 2;
+      for (let x = 0; x < canvas.width; x += 60) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += 60) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+      }
+
+      // Render de edificio básico de muestra
+      ctx.fillStyle = '#E67E22';
+      ctx.fillRect(120, 120, 80, 80);
+      ctx.fillStyle = '#FFF';
+      ctx.font = '12px sans-serif';
+      ctx.fillText('Casa Kame', 130, 165);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+  </script>
+</body>
+</html>
