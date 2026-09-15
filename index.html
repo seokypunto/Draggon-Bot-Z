@@ -180,20 +180,60 @@
     }
     .lvl-num { color: var(--orange-gold); }
 
-    /* --- VISTA 2: GALAXIA Y PLANETAS 3D --- */
+        /* --- VISTA 2: GALAXIA Y PLANETAS 3D (MEJORADA) --- */
     #map-canvas-planetas {
       position: absolute; top: 0; left: 0; width: 100%; height: 1600px;
-      background: radial-gradient(circle at 50% 20%, #1A0B2E 0%, #08020F 50%, #030008 100%);
-      background-image: 
-        radial-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 0),
-        radial-gradient(rgba(255, 255, 255, 0.2) 2px, transparent 0);
-      background-size: 50px 50px, 90px 90px;
+      background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+      overflow: hidden;
       display: none;
+    }
+
+    /* Capa de estrellas lejanas con movimiento lento */
+    #map-canvas-planetas::before {
+      content: " ";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: 
+        radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 90px 40px, #ffe6ff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 160px 120px, #80ffff, rgba(0,0,0,0));
+      background-repeat: repeat;
+      background-size: 200px 200px;
+      animation: moveStarsSlow 100s linear infinite;
+      opacity: 0.6;
+      z-index: 1;
+    }
+
+    /* Capa de estrellas cercanas y brillantes con movimiento rápido */
+    #map-canvas-planetas::after {
+      content: " ";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: 
+        radial-gradient(3px 3px at 50px 100px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 150px 150px, #ffdf80, rgba(0,0,0,0));
+      background-repeat: repeat;
+      background-size: 300px 300px;
+      animation: moveStarsFast 50s linear infinite;
+      opacity: 0.9;
+      z-index: 1;
+    }
+
+    @keyframes moveStarsSlow {
+      from { transform: translateY(0); }
+      to { transform: translateY(-200px); }
+    }
+
+    @keyframes moveStarsFast {
+      from { transform: translateY(0) translateX(0); }
+      to { transform: translateY(-300px) translateX(50px); }
     }
 
     .planet-wrapper {
       position: absolute; transform: translate(-50%, -50%);
       display: flex; flex-direction: column; align-items: center; cursor: pointer;
+      z-index: 2; /* Para que los planetas floten por encima de las estrellas */
     }
 
     .planet-sphere {
@@ -221,6 +261,7 @@
       border: 1px solid var(--orange-gold); padding: 4px 10px; border-radius: 12px;
       font-size: 11px; font-weight: 800; color: #FFF; box-shadow: 0 4px 15px rgba(0,0,0,0.8);
     }
+
 
     /* BOTONES LATERALES CIRCULARES */
     .floating-menu {
