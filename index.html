@@ -13,14 +13,15 @@
       --panel-bg: rgba(13, 17, 26, 0.95);
       --border-glow: rgba(255, 152, 0, 0.4);
     }
-/* Forzar tamaño imponente para Shenron */
-.shenron-img, #shenron {
+.shenron-hero {
     width: 340px !important;
-    max-width: 90vw !important;
     height: auto !important;
-    display: block !important;
-    margin: 15px auto !important;
+    max-width: 100% !important;
     object-fit: contain;
+    margin: 15px auto;
+    filter: drop-shadow(0 0 25px rgba(76, 175, 80, 0.4));
+    animation: floatShenron 4s ease-in-out infinite alternate;
+}
 }
 
 /* Icono del Zeni */
