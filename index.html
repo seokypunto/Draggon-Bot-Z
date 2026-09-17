@@ -318,9 +318,9 @@
       100% { transform: translateY(-8px); }
     }
 
-    /* Anciano Saiyan Abajo Izquierda (Esquina inferior izquierda absoluta) */
+    /* Anciano Saiyan (Más arriba y un pelin más a la derecha) */
     .battle-bottom-container {
-      display: flex; justify-content: flex-start; align-items: flex-end; width: 100%; position: relative; padding-bottom: 2px; gap: 8px;
+      display: flex; justify-content: flex-start; align-items: flex-end; width: 100%; position: relative; padding-bottom: 12px; padding-left: 15px; gap: 12px;
     }
     .battle-player-sprite { 
       font-size: 60px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); 
@@ -328,7 +328,7 @@
     .battle-player-status {
       background: rgba(248, 248, 248, 0.9); border: 3px solid #333;
       border-radius: 6px; padding: 6px 10px; width: 200px; box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-      margin-bottom: 0px;
+      margin-bottom: 12px;
     }
 
     /* Caja de Diálogo y Menú Estilo Pokémon (Abajo del todo) */
@@ -601,7 +601,7 @@
         <div class="battle-enemy-sprite">🌱👽</div>
       </div>
 
-      <!-- Contenedor Inferior (Anciano Saiyan Abajo Izquierda + Menú de Combate Estilo Pokémon) -->
+      <!-- Contenedor Inferior (Anciano Saiyan más arriba y más a la derecha) -->
       <div style="display: flex; flex-direction: column; width: 100%;">
         
         <div class="battle-bottom-container">
@@ -860,7 +860,7 @@
         if (kameCooldown > 0) return;
         damageToEnemy = Math.floor(Math.random() * 25) + 45;
         actionName = "¡El Anciano lanzó un KAME HAME HA";
-        kameCooldown = 2; // Cooldown de 1 turno completo
+        kameCooldown = 2;
       } else if (type === 'golpe') {
         damageToEnemy = Math.floor(Math.random() * 15) + 15;
         actionName = "¡El Anciano dio un golpe";
