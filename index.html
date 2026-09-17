@@ -180,7 +180,7 @@
     }
     .lvl-num { color: var(--orange-gold); }
 
-        /* --- VISTA 2: GALAXIA Y PLANETAS 3D (MEJORADA) --- */
+    /* --- VISTA 2: GALAXIA Y PLANETAS 3D (CON ESTRELLAS EN MOVIMIENTO) --- */
     #map-canvas-planetas {
       position: absolute; top: 0; left: 0; width: 100%; height: 1600px;
       background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
@@ -188,36 +188,26 @@
       display: none;
     }
 
-    /* Capa de estrellas lejanas con movimiento lento */
     #map-canvas-planetas::before {
       content: " ";
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
       background-image: 
         radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
         radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)),
         radial-gradient(1px 1px at 90px 40px, #ffe6ff, rgba(0,0,0,0)),
         radial-gradient(2px 2px at 160px 120px, #80ffff, rgba(0,0,0,0));
-      background-repeat: repeat;
-      background-size: 200px 200px;
-      animation: moveStarsSlow 100s linear infinite;
-      opacity: 0.6;
-      z-index: 1;
+      background-repeat: repeat; background-size: 200px 200px;
+      animation: moveStarsSlow 100s linear infinite; opacity: 0.6; z-index: 1;
     }
 
-    /* Capa de estrellas cercanas y brillantes con movimiento rápido */
     #map-canvas-planetas::after {
       content: " ";
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
       background-image: 
         radial-gradient(3px 3px at 50px 100px, #ffffff, rgba(0,0,0,0)),
         radial-gradient(2px 2px at 150px 150px, #ffdf80, rgba(0,0,0,0));
-      background-repeat: repeat;
-      background-size: 300px 300px;
-      animation: moveStarsFast 50s linear infinite;
-      opacity: 0.9;
-      z-index: 1;
+      background-repeat: repeat; background-size: 300px 300px;
+      animation: moveStarsFast 50s linear infinite; opacity: 0.9; z-index: 1;
     }
 
     @keyframes moveStarsSlow {
@@ -232,8 +222,7 @@
 
     .planet-wrapper {
       position: absolute; transform: translate(-50%, -50%);
-      display: flex; flex-direction: column; align-items: center; cursor: pointer;
-      z-index: 2; /* Para que los planetas floten por encima de las estrellas */
+      display: flex; flex-direction: column; align-items: center; cursor: pointer; z-index: 2;
     }
 
     .planet-sphere {
@@ -261,7 +250,6 @@
       border: 1px solid var(--orange-gold); padding: 4px 10px; border-radius: 12px;
       font-size: 11px; font-weight: 800; color: #FFF; box-shadow: 0 4px 15px rgba(0,0,0,0.8);
     }
-
 
     /* BOTONES LATERALES CIRCULARES */
     .floating-menu {
@@ -293,12 +281,65 @@
       border-bottom: 1px solid var(--border-glow); padding-bottom: 8px; letter-spacing: 1px; width: 100%;
     }
 
+    /* ESTILO RETRO DIALOG BOX (ESTILO GAME BOY / RPG CLÁSICO) */
+    .retro-dialog-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.85); z-index: 100; display: flex;
+      justify-content: center; align-items: flex-end; padding: 15px;
+    }
+    .retro-box {
+      width: 100%; max-width: 420px; background: #F8F8F8; color: #111;
+      border: 4px solid #333; border-radius: 6px; padding: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.9); font-family: monospace;
+      margin-bottom: 15px; position: relative;
+    }
+    .retro-box-title {
+      font-size: 12px; font-weight: bold; background: #333; color: #FFB300;
+      padding: 2px 8px; position: absolute; top: -12px; left: 10px; border-radius: 4px;
+    }
+    .retro-text {
+      font-size: 13px; line-height: 1.4; margin-bottom: 12px; color: #222;
+    }
+    .retro-btn {
+      background: #333; color: #FFF; border: 2px solid #000; padding: 6px 12px;
+      font-family: monospace; font-weight: bold; font-size: 12px; cursor: pointer;
+      border-radius: 4px; display: block; width: 100%; text-align: center;
+    }
+    .retro-btn:hover { background: #555; }
+
+    /* ESTILOS TIENDA DE MINTEO / GACHA */
+    .gacha-container {
+      display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 320px; margin-top: 10px;
+    }
+    .gacha-card {
+      background: linear-gradient(135deg, rgba(25, 32, 48, 0.9), rgba(15, 20, 30, 0.95));
+      border: 2px solid var(--orange-dbz); border-radius: 16px; padding: 15px;
+      text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .gacha-card.legendary {
+      border-color: #AB47BC; background: linear-gradient(135deg, rgba(40, 20, 50, 0.9), rgba(20, 10, 30, 0.95));
+    }
+    .gacha-icon { font-size: 40px; }
+    .gacha-name { font-size: 14px; font-weight: 800; color: #FFF; text-transform: uppercase; }
+    .gacha-desc { font-size: 11px; color: #AAA; }
+    .gacha-btn {
+      background: linear-gradient(135deg, #FF9800, #F57C00); color: #000; font-weight: bold; font-size: 12px;
+      border: none; padding: 8px 16px; border-radius: 10px; cursor: pointer;
+      box-shadow: 0 4px 10px rgba(255,152,0,0.4); text-transform: uppercase; margin-top: 5px;
+    }
+    .gacha-card.legendary .gacha-btn {
+      background: linear-gradient(135deg, #AB47BC, #7B1FA2); color: #FFF; box-shadow: 0 4px 10px rgba(171,71,188,0.4);
+    }
+    .gacha-result {
+      margin-top: 15px; padding: 12px; background: rgba(255,215,0,0.1);
+      border: 1px dashed var(--orange-gold); border-radius: 12px; text-align: center;
+      font-size: 13px; color: var(--orange-gold); display: none; width: 100%; max-width: 320px;
+    }
+
     /* ESTILO SECCIÓN SHENRON CON SU ASSET */
     .shenron-hero {
-      width: 220px;
-      height: 220px;
-      object-fit: contain;
-      margin: 15px 0;
+      width: 220px; height: 220px; object-fit: contain; margin: 15px 0;
       filter: drop-shadow(0 0 25px rgba(76, 175, 80, 0.4));
       animation: floatShenron 4s ease-in-out infinite alternate;
     }
@@ -329,6 +370,24 @@
 </head>
 <body>
 
+  <!-- POPUP INICIAL RETRO (SELECCIÓN DE HÉROE GRATUITO) -->
+  <div id="intro-hero-modal" class="retro-dialog-overlay">
+    <div class="retro-box">
+      <div class="retro-box-title">SISTEMA DRAGON BOT Z</div>
+      <p class="retro-text">¡Bienvenido, guerrero! Escoge tu héroe inicial gratuito para liderar tu imperio. Será enviado directo a la Cápsula Corp Lab para su incubación inicial.</p>
+      <button class="retro-btn" onclick="claimInitialHero()">¡Reclamar Héroe Gratuito!</button>
+    </div>
+  </div>
+
+  <!-- POPUP DEL ANCIANO SAIYAN (SE MUESTRA AL ENTRAR A LA ALDEA) -->
+  <div id="elder-dialog-modal" class="retro-dialog-overlay" style="display: none;">
+    <div class="retro-box" style="border-color: #2E7D32;">
+      <div class="retro-box-title" style="background: #2E7D32; color: #FFF;">ANCIANO SAIYAN</div>
+      <p class="retro-text">"Hola... soy el último anciano de esta aldea. Me escondí tras el brutal ataque de los soldados de Freezer. Los malditos dejaron varios Saibaman sueltos por los alrededores que atacan constantemente... ¡Combatiré a tu lado para defender nuestro hogar!"</p>
+      <button class="retro-btn" style="background: #2E7D32;" onclick="closeElderDialog()">¡Acepto tu ayuda, Anciano!</button>
+    </div>
+  </div>
+
   <div id="app-wrapper">
 
     <!-- BARRA SUPERIOR -->
@@ -340,10 +399,9 @@
         </div>
       </div>
       <div class="resources-bar">
-        <!-- BALANCE DE MONEDAS CON ASSET ZENI -->
         <div class="res-item">
          <img src="/assets/zeni.png" alt="Zeni" class="icon-zeni" width="24" height="24">
-          <span>1.25K</span>
+          <span id="zeni-balance">1250</span>
         </div>
         <div class="res-item">⚡ 100</div>
         <div class="res-item">🔮 0/7</div>
@@ -426,6 +484,9 @@
       <div id="modal-capsula" class="view-modal">
         <div class="modal-title">🧪 Cápsula Corp Lab</div>
         <p style="text-align: center; color: #AAA; font-size: 13px;">Tecnología e investigaciones especiales.</p>
+        <div id="capsula-status-hero" style="margin-top: 15px; padding: 10px; background: rgba(0,255,255,0.05); border: 1px solid #80DEEA; border-radius: 8px; font-size: 12px; text-align: center; color: #80DEEA; display: none;">
+          ⚡ Héroe en Incubación (72h restantes)
+        </div>
         <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
       </div>
 
@@ -435,9 +496,29 @@
         <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
       </div>
 
+      <!-- SECCIÓN DE MINTEO / CAJAS GACHA -->
       <div id="modal-minteo" class="view-modal">
         <div class="modal-title">✨ Tienda de Invocación</div>
-        <p style="text-align: center; color: #AAA; font-size: 13px;">Invoca cofres y fragmentos NFT de personajes.</p>
+        <p style="text-align: center; color: #AAA; font-size: 12px; margin-bottom: 10px;">Abre cofres para invocar guerreros aleatorios.</p>
+        
+        <div class="gacha-container">
+          <div class="gacha-card">
+            <div class="gacha-icon">📦</div>
+            <div class="gacha-name">Caja Normal</div>
+            <div class="gacha-desc">Coste: 200 Zeni (Guerreros R & SR)</div>
+            <button class="gacha-btn" onclick="openGacha('normal')">Abrir Caja</button>
+          </div>
+
+          <div class="gacha-card legendary">
+            <div class="gacha-icon">🎁</div>
+            <div class="gacha-name">Caja Legendaria</div>
+            <div class="gacha-desc">Coste: 500 Zeni (Alta probabilidad SSR)</div>
+            <button class="gacha-btn" onclick="openGacha('legendary')">Invocar</button>
+          </div>
+        </div>
+
+        <div id="gacha-result-box" class="gacha-result"></div>
+
         <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
       </div>
 
@@ -492,6 +573,22 @@
     let startY = 0;
     let currentTranslateY = 0;
 
+    let playerZeni = 1250;
+    let hasClaimedHero = false;
+    let elderGreeted = false;
+
+    // Funciones del flujo de historia retro
+    function claimInitialHero() {
+      hasClaimedHero = true;
+      document.getElementById('intro-hero-modal').style.display = 'none';
+      document.getElementById('capsula-status-hero').style.display = 'block';
+    }
+
+    function closeElderDialog() {
+      elderGreeted = true;
+      document.getElementById('elder-dialog-modal').style.display = 'none';
+    }
+
     function getActiveCanvas() { return activeCanvas; }
 
     const minTranslateY = () => viewport.clientHeight - getActiveCanvas().clientHeight;
@@ -503,7 +600,7 @@
     }
 
     viewport.addEventListener('pointerdown', (e) => {
-      if (e.target.closest('.iso-slot-wrapper') || e.target.closest('.planet-wrapper') || e.target.closest('.circle-btn') || e.target.closest('.view-modal')) return;
+      if (e.target.closest('.iso-slot-wrapper') || e.target.closest('.planet-wrapper') || e.target.closest('.circle-btn') || e.target.closest('.view-modal') || e.target.closest('.retro-dialog-overlay')) return;
       isDragging = true;
       startY = e.clientY - currentTranslateY;
     });
@@ -541,6 +638,13 @@
         activeCanvas = document.getElementById('map-canvas-aldea');
         activeCanvas.style.display = 'block';
         activeCanvas.style.transform = `translateY(0px)`;
+        
+        // Si el usuario vuelve a la aldea y aún no ha visto al anciano, mostrar su diálogo
+        if (!elderGreeted) {
+          setTimeout(() => {
+            document.getElementById('elder-dialog-modal').style.display = 'flex';
+          }, 300);
+        }
       } else if (tabId === 'planetas') {
         activeCanvas = document.getElementById('map-canvas-planetas');
         activeCanvas.style.display = 'block';
@@ -554,6 +658,42 @@
       closeModals();
       const target = document.getElementById(`modal-${id}`);
       if (target) target.classList.add('active');
+    }
+
+    function openGacha(type) {
+      const cost = type === 'legendary' ? 500 : 200;
+      const resultBox = document.getElementById('gacha-result-box');
+
+      if (playerZeni < cost) {
+        resultBox.style.display = 'block';
+        resultBox.innerHTML = `⚠️ ¡No tienes suficiente Zeni! Necesitas ${cost} Zeni.`;
+        return;
+      }
+
+      playerZeni -= cost;
+      document.getElementById('zeni-balance').innerText = playerZeni;
+
+      let pool = [];
+      if (type === 'legendary') {
+        pool = [
+          { name: 'Goku Super Saiyan (SSR)', icon: '🔥', rate: '¡Legendario!' },
+          { name: 'Vegeta Super Saiyan (SSR)', icon: '⚡', rate: '¡Legendario!' },
+          { name: 'Freezer Forma Final (SSR)', icon: '🔮', rate: '¡Legendario!' },
+          { name: 'Cell Perfect (SSR)', icon: '🟢', rate: '¡Legendario!' }
+        ];
+      } else {
+        pool = [
+          { name: 'Yamcha (R)', icon: '🥊', rate: 'Común' },
+          { name: 'Krilin (R)', icon: '🟡', rate: 'Común' },
+          { name: 'Ten Shin Han (SR)', icon: '🔺', rate: 'Raro' },
+          { name: 'Piccolo (SR)', icon: '💚', rate: 'Raro' }
+        ];
+      }
+
+      const reward = pool[Math.floor(Math.random() * pool.length)];
+
+      resultBox.style.display = 'block';
+      resultBox.innerHTML = `🎉 ¡Has abierto la caja y obtenido!<br><b style="font-size:15px; color:#FFF;">${reward.icon} ${reward.name}</b><br><span style="font-size:10px; color:#AAA;">[${reward.rate}]</span>`;
     }
   </script>
 </body>
