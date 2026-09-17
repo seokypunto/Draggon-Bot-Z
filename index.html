@@ -288,7 +288,7 @@
     }
     .retro-btn:hover { background: #555; }
 
-    /* --- ESTILOS BATALLA ESTILO POKÉMON (INVERTIDO Y CENTRADO) --- */
+    /* --- ESTILOS BATALLA POKÉMON (INVERTIDO Y CENTRADO EXACTO) --- */
     #pokemon-battle-screen {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       background: linear-gradient(180deg, #D4A373 0%, #CCD5AE 60%, #588157 100%);
@@ -305,12 +305,12 @@
     .battle-hp-bar-bg { background: #bbb; height: 8px; border-radius: 4px; border: 1px solid #333; overflow: hidden; }
     .battle-hp-bar-fill { background: #4CAF50; height: 100%; width: 100%; transition: width 0.3s ease; }
 
-    /* Escenario Central / Sprites de Batalla */
+    /* Escenario Central / Sprites de Batalla (Saibaman Arriba-Derecha, Héroe Abajo-Izquierda) */
     .battle-arena-stage {
       flex: 1; display: flex; justify-content: space-between; align-items: center; position: relative; padding: 0 20px;
     }
-    .battle-enemy-sprite { font-size: 65px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); animation: floatEnemy 2s ease-in-out infinite alternate; }
-    .battle-player-sprite { font-size: 60px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); }
+    .battle-player-sprite { font-size: 60px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); align-self: flex-end; margin-bottom: 10px; }
+    .battle-enemy-sprite { font-size: 65px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); align-self: flex-start; margin-top: 10px; animation: floatEnemy 2s ease-in-out infinite alternate; }
 
     @keyframes floatEnemy {
       0% { transform: translateY(0px); }
@@ -323,11 +323,11 @@
       border-radius: 6px; padding: 8px 12px; width: 210px; box-shadow: 0 4px 10px rgba(0,0,0,0.4);
     }
 
-    /* Panel de Interacción Central (Mensaje centrado en pantalla) */
+    /* Panel de Interacción Central (Centrado exacto en pantalla) */
     .battle-control-panel {
       background: #F8F8F8; border: 4px solid #333; border-radius: 6px;
       padding: 12px; min-height: 100px; display: flex; flex-direction: column; justify-content: space-between;
-      position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%);
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
       width: 90%; max-width: 380px; box-shadow: 0 10px 25px rgba(0,0,0,0.6); z-index: 210;
     }
     .battle-msg { font-size: 13px; color: #222; font-weight: bold; line-height: 1.4; text-align: center; }
@@ -586,10 +586,10 @@
         </div>
       </div>
 
-      <!-- Arena de Combate -->
+      <!-- Arena de Combate (Saibaman Arriba-Derecha, Héroe Abajo-Izquierda) -->
       <div class="battle-arena-stage">
-        <div class="battle-player-sprite">🥋👦</div>
         <div class="battle-enemy-sprite">🌱👽</div>
+        <div class="battle-player-sprite">🥋👦</div>
       </div>
 
       <!-- Estado Jugador (Abajo Izquierda) -->
@@ -603,7 +603,7 @@
         </div>
       </div>
 
-      <!-- Panel Central de Comandos y Mensajes -->
+      <!-- Panel Central de Comandos y Mensajes (Centrado estricto) -->
       <div class="battle-control-panel">
         <div id="battle-message-text" class="battle-msg">¡Un SAIBAMAN salvaje ha aparecido!</div>
         <div id="battle-actions-container" class="battle-actions-grid">
@@ -723,10 +723,9 @@
         activeCanvas.style.display = 'block';
         activeCanvas.style.transform = `translateY(0px)`;
         
+        // El anciano saiwan aparece instantáneamente al hacer clic en Aldea
         if (!elderGreeted) {
-          setTimeout(() => {
-            document.getElementById('elder-dialog-modal').style.display = 'flex';
-          }, 300);
+          document.getElementById('elder-dialog-modal').style.display = 'flex';
         }
       } else if (tabId === 'planetas') {
         activeCanvas = document.getElementById('map-canvas-planetas');
