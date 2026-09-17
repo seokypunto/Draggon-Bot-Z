@@ -288,7 +288,7 @@
     }
     .retro-btn:hover { background: #555; }
 
-    /* --- ESTILOS BATALLA POKÉMON (INVERTIDO Y CENTRADO EXACTO) --- */
+    /* --- ESTILOS BATALLA POKÉMON (INVERTIDO Y DISTRIBUIDO A TU GUSTO) --- */
     #pokemon-battle-screen {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       background: linear-gradient(180deg, #D4A373 0%, #CCD5AE 60%, #588157 100%);
@@ -296,31 +296,39 @@
       padding: 15px; font-family: monospace;
     }
 
-    /* Caja de Estado del Enemigo (Arriba Derecha) */
+    /* Contenedor Superior (Saibaman: Estado a la izquierda / invertido, Sprite a la derecha arriba) */
+    .battle-top-container {
+      display: flex; justify-content: space-between; align-items: flex-start; width: 100%; padding-top: 5px;
+    }
     .battle-enemy-status {
-      align-self: flex-end; background: rgba(248, 248, 248, 0.9); border: 3px solid #333;
+      background: rgba(248, 248, 248, 0.9); border: 3px solid #333;
       border-radius: 6px; padding: 8px 12px; width: 210px; box-shadow: 0 4px 10px rgba(0,0,0,0.4);
     }
     .battle-name-lvl { display: flex; justify-content: space-between; font-weight: bold; font-size: 12px; color: #222; margin-bottom: 4px; }
     .battle-hp-bar-bg { background: #bbb; height: 8px; border-radius: 4px; border: 1px solid #333; overflow: hidden; }
     .battle-hp-bar-fill { background: #4CAF50; height: 100%; width: 100%; transition: width 0.3s ease; }
-
-    /* Escenario Central / Sprites de Batalla (Saibaman Arriba-Derecha, Héroe Abajo-Izquierda) */
-    .battle-arena-stage {
-      flex: 1; display: flex; justify-content: space-between; align-items: center; position: relative; padding: 0 20px;
+    
+    .battle-enemy-sprite { 
+      font-size: 65px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); 
+      animation: floatEnemy 2s ease-in-out infinite alternate; 
     }
-    .battle-player-sprite { font-size: 60px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); align-self: flex-end; margin-bottom: 10px; }
-    .battle-enemy-sprite { font-size: 65px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); align-self: flex-start; margin-top: 10px; animation: floatEnemy 2s ease-in-out infinite alternate; }
 
     @keyframes floatEnemy {
       0% { transform: translateY(0px); }
       100% { transform: translateY(-8px); }
     }
 
-    /* Caja de Estado del Jugador (Abajo Izquierda) */
+    /* Contenedor Inferior (Héroe: Sprite abajo izquierda, Estado a su derecha un poco más arriba) */
+    .battle-bottom-container {
+      display: flex; justify-content: flex-start; align-items: flex-end; width: 100%; position: relative; padding-bottom: 110px; gap: 15px;
+    }
+    .battle-player-sprite { 
+      font-size: 60px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); 
+    }
     .battle-player-status {
-      align-self: flex-start; background: rgba(248, 248, 248, 0.9); border: 3px solid #333;
+      background: rgba(248, 248, 248, 0.9); border: 3px solid #333;
       border-radius: 6px; padding: 8px 12px; width: 210px; box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      margin-bottom: 25px; /* Un poco más arriba respecto a la base del sprite */
     }
 
     /* Panel de Interacción Central (Centrado exacto en pantalla) */
@@ -573,34 +581,21 @@
 
     </div>
 
-    <!-- PANTALLA DE BATALLA ESTILO POKÉMON (INVERTIDA Y CENTRADA) -->
+    <!-- PANTALLA DE BATALLA ESTILO POKÉMON (DISTRIBUCIÓN PERSONALIZADA) -->
     <div id="pokemon-battle-screen">
-      <!-- Estado Enemigo (Arriba Derecha) -->
-      <div class="battle-enemy-status">
-        <div class="battle-name-lvl">
-          <span id="enemy-battle-name">SAIBAMAN</span>
-          <span>Nv.15</span>
+      
+      <!-- Contenedor Superior (Saibaman: Estado izquierda / Sprite derecha arriba) -->
+      <div class="battle-top-container">
+        <div class="battle-enemy-status">
+          <div class="battle-name-lvl">
+            <span id="enemy-battle-name">SAIBAMAN</span>
+            <span>Nv.15</span>
+          </div>
+          <div class="battle-hp-bar-bg">
+            <div id="enemy-hp-fill" class="battle-hp-bar-fill"></div>
+          </div>
         </div>
-        <div class="battle-hp-bar-bg">
-          <div id="enemy-hp-fill" class="battle-hp-bar-fill"></div>
-        </div>
-      </div>
-
-      <!-- Arena de Combate (Saibaman Arriba-Derecha, Héroe Abajo-Izquierda) -->
-      <div class="battle-arena-stage">
         <div class="battle-enemy-sprite">🌱👽</div>
-        <div class="battle-player-sprite">🥋👦</div>
-      </div>
-
-      <!-- Estado Jugador (Abajo Izquierda) -->
-      <div class="battle-player-status">
-        <div class="battle-name-lvl">
-          <span>GOKU (INICIAL)</span>
-          <span>Nv.30</span>
-        </div>
-        <div class="battle-hp-bar-bg">
-          <div id="player-hp-fill" class="battle-hp-bar-fill"></div>
-        </div>
       </div>
 
       <!-- Panel Central de Comandos y Mensajes (Centrado estricto) -->
@@ -611,6 +606,21 @@
           <button class="battle-action-btn" onclick="playerRun()">🏃 HUIR</button>
         </div>
       </div>
+
+      <!-- Contenedor Inferior (Héroe: Sprite abajo izq / Estado a su derecha un poco arriba) -->
+      <div class="battle-bottom-container">
+        <div class="battle-player-sprite">🥋👦</div>
+        <div class="battle-player-status">
+          <div class="battle-name-lvl">
+            <span>GOKU (INICIAL)</span>
+            <span>Nv.30</span>
+          </div>
+          <div class="battle-hp-bar-bg">
+            <div id="player-hp-fill" class="battle-hp-bar-fill"></div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- BARRA DE NAVEGACIÓN INFERIOR -->
@@ -723,7 +733,7 @@
         activeCanvas.style.display = 'block';
         activeCanvas.style.transform = `translateY(0px)`;
         
-        // El anciano saiwan aparece instantáneamente al hacer clic en Aldea
+        // El anciano saiyan aparece instantáneamente al hacer clic en Aldea
         if (!elderGreeted) {
           document.getElementById('elder-dialog-modal').style.display = 'flex';
         }
