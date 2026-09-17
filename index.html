@@ -1,464 +1,764 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dragon Bot Z - Realm & Galaxy</title>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --panel-bg: #1e293b;
-            --accent: #f59e0b;
-            --accent-glow: rgba(245, 158, 11, 0.4);
-            --text: #f8fafc;
-            --text-dim: #94a3b8;
-            --danger: #ef4444;
-            --success: #22c55e;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Dragon Bot Z - Realm & Galaxy</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --orange-dbz: #FF9800;
+      --orange-gold: #FFB300;
+      --bg-dark: #090B10;
+      --panel-bg: rgba(13, 17, 26, 0.95);
+      --border-glow: rgba(255, 152, 0, 0.4);
+    }
+.shenron-hero {
+    width: 680px !important;
+    max-width: 92vw !important;
+    height: auto !important;
+    object-fit: contain;
+    margin: 15px auto;
+    filter: drop-shadow(0 0 28px rgba(76, 175, 80, 0.55));
+    animation: floatShenron 4s ease-in-out infinite alternate;
+}
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            user-select: none;
-        }
+/* Icono del Zeni */
+.zeni-icon, #zeni-icon {
+    width: 28px;
+    height: 28px;
+    vertical-align: middle;
+    object-fit: contain;
+}
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    
+    body {
+      background-color: var(--bg-dark);
+      color: #fff;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-        /* Pantallas generales */
-        .screen {
-            display: none;
-            flex: 1;
-            flex-direction: column;
-            padding: 16px;
-            overflow-y: auto;
-            position: relative;
-        }
+    /* CONTENEDOR MARCO MÓVIL */
+    #app-wrapper {
+      width: 100%;
+      max-width: 450px;
+      height: 100vh;
+      max-height: 920px;
+      background-color: #10141e;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+    }
 
-        .screen.active {
-            display: flex;
-        }
+    @media (min-width: 481px) {
+      #app-wrapper {
+        height: 92vh;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+      }
+    }
 
-        /* Pantalla de Selección de Héroe */
-        #hero-selection-screen {
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-        }
+    /* BARRA SUPERIOR */
+    #header {
+      background: linear-gradient(180deg, rgba(15,20,30,0.95) 0%, rgba(15,20,30,0.8) 100%);
+      backdrop-filter: blur(8px);
+      padding: 8px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 20;
+      border-bottom: 1px solid var(--border-glow);
+    }
 
-        .hero-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-            width: 100%;
-            max-width: 350px;
-            margin-top: 20px;
-        }
+    .profile-badge { display: flex; align-items: center; gap: 8px; }
+    .avatar-frame {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: linear-gradient(135deg, #FF9800, #F57C00);
+      border: 2px solid #FFF; display: flex; align-items: center; justify-content: center;
+      font-weight: bold; font-size: 14px; position: relative;
+      box-shadow: 0 0 10px rgba(255,152,0,0.5);
+    }
+    .level-tag {
+      position: absolute; bottom: -3px; left: -2px;
+      background: #E53935; color: #FFF; font-size: 8px; font-weight: 900;
+      padding: 1px 4px; border-radius: 6px; border: 1px solid #FFF;
+    }
 
-        .hero-card {
-            background: var(--panel-bg);
-            border: 2px solid #334155;
-            border-radius: 12px;
-            padding: 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
+    .resources-bar {
+      display: flex; gap: 6px; background: rgba(0, 0, 0, 0.6);
+      padding: 4px 8px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+    }
+    .res-item {
+      display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: bold;
+      padding: 2px 6px; border-radius: 10px; background: rgba(255, 255, 255, 0.05);
+    }
 
-        .hero-card:active {
-            transform: scale(0.98);
-            border-color: var(--accent);
-        }
+    /* ESTILO ICONO ZENI EN BARRA SUPERIOR */
+    .icon-zeni {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.6));
+    }
 
-        .hero-card h3 {
-            color: var(--accent);
-            margin-bottom: 6px;
-        }
+    /* VIEWPORT MAPA CON DRAG */
+    #map-viewport {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      cursor: grab;
+      perspective: 1000px;
+    }
+    #map-viewport:active { cursor: grabbing; }
 
-        .hero-card p {
-            font-size: 0.85rem;
-            color: var(--text-dim);
-        }
+    /* --- VISTA 1: ALDEA ISOMÉTRICA --- */
+    #map-canvas-aldea {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 1550px;
+      background: radial-gradient(circle at 50% 10%, #7CB342 0%, #4AF50 35%, #33691E 75%, #1B5E20 100%);
+      background-image: 
+        radial-gradient(rgba(255, 255, 255, 0.12) 2px, transparent 0),
+        radial-gradient(rgba(0, 0, 0, 0.2) 1.5px, transparent 0);
+      background-size: 30px 30px, 15px 15px;
+      display: block;
+    }
 
-        /* Cabecera superior */
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--panel-bg);
-            padding: 10px 16px;
-            border-bottom: 1px solid #334155;
-        }
+    .path-iso {
+      position: absolute;
+      background: linear-gradient(90deg, #795548 0%, #8D6E63 50%, #6D4C41 100%);
+      border-radius: 12px;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.3);
+      opacity: 0.85;
+    }
 
-        .resource-badge {
-            background: #0f172a;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: var(--accent);
-            border: 1px solid #334155;
-        }
+    .iso-slot-wrapper {
+      position: absolute; transform: translate(-50%, -50%);
+      width: 140px; height: 120px; cursor: pointer;
+    }
 
-        /* Contenido de las pestañas principales */
-        .panel {
-            background: var(--panel-bg);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-            border: 1px solid #334155;
-        }
+    .iso-base {
+      position: absolute; bottom: 0; width: 100%; height: 80px;
+      background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+      border-radius: 20px; transform: rotateX(55deg) rotateZ(-45deg);
+      box-shadow: -5px 5px 0px #0D3B10, -10px 10px 0px #061F08, -15px 20px 25px rgba(0,0,0,0.6);
+      border: 3px solid #66BB6A; transition: all 0.2s ease;
+    }
+    .iso-slot-wrapper:hover .iso-base {
+      transform: rotateX(55deg) rotateZ(-45deg) translateZ(10px);
+      border-color: var(--orange-gold);
+    }
 
-        h2 {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-            color: var(--accent);
-        }
+    .iso-content {
+      position: absolute; top: 5px; left: 50%;
+      transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; z-index: 2;
+    }
 
-        /* Temporizador de Cápsula */
-        .timer-box {
-            text-align: center;
-            padding: 20px;
-            background: rgba(15, 23, 42, 0.6);
-            border-radius: 8px;
-            border: 1px dashed var(--accent);
-            margin-top: 10px;
-        }
+    .building-badge-3d {
+      width: 60px; height: 60px;
+      background: linear-gradient(135deg, #263238 0%, #102027 100%);
+      border: 2px solid var(--orange-dbz);
+      border-radius: 16px; display: flex; align-items: center; justify-content: center;
+      font-size: 32px; box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+    }
+    .building-tag {
+      margin-top: 6px; background: rgba(10, 14, 22, 0.92);
+      padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 800;
+      border: 1px solid var(--orange-gold); color: #FFF; white-space: nowrap;
+    }
+    .lvl-num { color: var(--orange-gold); }
 
-        .countdown {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: var(--accent);
-            margin-top: 8px;
-            font-family: monospace;
-        }
+    /* --- VISTA 2: GALAXIA Y PLANETAS 3D --- */
+    #map-canvas-planetas {
+      position: absolute; top: 0; left: 0; width: 100%; height: 1600px;
+      background: radial-gradient(circle at 50% 20%, #1A0B2E 0%, #08020F 50%, #030008 100%);
+      background-image: 
+        radial-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 0),
+        radial-gradient(rgba(255, 255, 255, 0.2) 2px, transparent 0);
+      background-size: 50px 50px, 90px 90px;
+      display: none;
+    }
 
-        /* Botones generales */
-        .btn {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            color: #0f172a;
-            border: none;
-            padding: 10px 16px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-            text-align: center;
-        }
+    .planet-wrapper {
+      position: absolute; transform: translate(-50%, -50%);
+      display: flex; flex-direction: column; align-items: center; cursor: pointer;
+    }
 
-        .btn:active {
-            opacity: 0.9;
-            transform: scale(0.98);
-        }
+    .planet-sphere {
+      position: relative; border-radius: 50%;
+      box-shadow: inset -15px -15px 30px rgba(0,0,0,0.9), 0 0 25px rgba(255,255,255,0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex; align-items: center; justify-content: center;
+    }
 
-        /* Barra de navegación inferior */
-        .nav-bar {
-            display: flex;
-            background: var(--panel-bg);
-            border-top: 1px solid #334155;
-            height: 60px;
-        }
+    .planet-wrapper:hover .planet-sphere {
+      transform: scale(1.12);
+      box-shadow: inset -10px -10px 20px rgba(0,0,0,0.8), 0 0 35px var(--orange-gold);
+    }
 
-        .nav-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: none;
-            border: none;
-            color: var(--text-dim);
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
+    .planet-tierra { width: 90px; height: 90px; background: radial-gradient(circle at 35% 35%, #4FC3F7 0%, #0288D1 50%, #01579B 100%); }
+    .planet-namek { width: 100px; height: 100px; background: radial-gradient(circle at 35% 35%, #AED581 0%, #558B2F 50%, #1B5E20 100%); }
+    .planet-u1 { width: 85px; height: 85px; background: radial-gradient(circle at 35% 35%, #FF8A80 0%, #D32F2F 50%, #880E4F 100%); }
+    .planet-u2 { width: 95px; height: 95px; background: radial-gradient(circle at 35% 35%, #CE93D8 0%, #7B1FA2 50%, #4A148C 100%); }
+    .planet-u3 { width: 80px; height: 80px; background: radial-gradient(circle at 35% 35%, #FFE082 0%, #F57F17 50%, #E65100 100%); }
+    .planet-u4 { width: 90px; height: 90px; background: radial-gradient(circle at 35% 35%, #80CBC4 0%, #00695C 50%, #004D40 100%); }
+    .planet-u5 { width: 105px; height: 105px; background: radial-gradient(circle at 35% 35%, #CFD8DC 0%, #546E7A 50%, #263238 100%); }
 
-        .nav-item.active {
-            color: var(--accent);
-        }
+    .planet-info {
+      margin-top: 8px; background: rgba(10, 14, 22, 0.9);
+      border: 1px solid var(--orange-gold); padding: 4px 10px; border-radius: 12px;
+      font-size: 11px; font-weight: 800; color: #FFF; box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+    }
 
-        .nav-item svg {
-            width: 20px;
-            height: 20px;
-            margin-bottom: 4px;
-            fill: currentColor;
-        }
+    /* BOTONES LATERALES CIRCULARES */
+    .floating-menu {
+      position: absolute; right: 10px; top: 15px;
+      display: flex; flex-direction: column; gap: 10px; z-index: 15;
+    }
+    .circle-btn {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: rgba(15, 20, 30, 0.85); border: 2px solid var(--orange-dbz);
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5); position: relative; cursor: pointer;
+    }
+    .badge-dot {
+      position: absolute; top: 1px; right: 1px; width: 10px; height: 10px;
+      background: #E53935; border-radius: 50%; border: 2px solid #FFF;
+    }
 
-        /* Modal / Alerta del Anciano */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            padding: 20px;
-        }
+    /* MODALES DE SECCIONES */
+    .view-modal {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--panel-bg); backdrop-filter: blur(10px);
+      z-index: 25; display: none; padding: 20px; overflow-y: auto;
+    }
+    .view-modal.active { display: flex; flex-direction: column; align-items: center; }
+    
+    .modal-title {
+      font-size: 18px; font-weight: bold; color: var(--orange-dbz);
+      text-transform: uppercase; text-align: center; margin-bottom: 15px;
+      border-bottom: 1px solid var(--border-glow); padding-bottom: 8px; letter-spacing: 1px; width: 100%;
+    }
 
-        .modal-card {
-            background: var(--panel-bg);
-            border: 2px solid var(--accent);
-            border-radius: 14px;
-            padding: 20px;
-            width: 100%;
-            max-width: 320px;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-        }
+    /* ESTILO SECCIÓN SHENRON CON SU ASSET */
+    .shenron-hero {
+      width: 220px;
+      height: 220px;
+      object-fit: contain;
+      margin: 15px 0;
+      filter: drop-shadow(0 0 25px rgba(76, 175, 80, 0.4));
+      animation: floatShenron 4s ease-in-out infinite alternate;
+    }
 
-        .modal-card h3 {
-            color: var(--accent);
-            margin-bottom: 10px;
-        }
+    @keyframes floatShenron {
+      0% { transform: translateY(0px) scale(1); }
+      100% { transform: translateY(-10px) scale(1.03); }
+    }
 
-        .modal-card p {
-            font-size: 0.9rem;
-            color: var(--text-dim);
-            margin-bottom: 16px;
-            line-height: 1.4;
-        }
+    /* BARRA INFERIOR DE NAVEGACIÓN */
+    #nav-bar {
+      background: #090B10; display: grid; grid-template-columns: repeat(6, 1fr);
+      padding: 6px 2px 8px 2px; border-top: 1px solid var(--border-glow); z-index: 30;
+    }
+    .nav-tab {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: none; border: none; color: #78909C; font-size: 8px; font-weight: 700;
+      gap: 3px; cursor: pointer; position: relative; padding: 4px 0; border-radius: 6px;
+      text-transform: uppercase;
+    }
+    .nav-tab.active { color: var(--orange-dbz); background: rgba(255, 152, 0, 0.12); }
+    .nav-tab.active::before {
+      content: ''; position: absolute; top: -6px; width: 20px; height: 2px;
+      background: var(--orange-dbz); border-radius: 2px; box-shadow: 0 0 6px var(--orange-dbz);
+    }
+    .nav-icon { font-size: 16px; }
 
-        /* Imagen de Shenron adaptable y segura */
-        .shenron-container {
-            text-align: center;
-            padding: 10px;
-        }
+    /* --- MODAL DE MEJORA DE EDIFICIO --- */
+    #modal-edificio .modal-title { color: var(--orange-gold); }
+    .edificio-icon-grande {
+      width: 90px; height: 90px; border-radius: 22px;
+      background: linear-gradient(135deg, #263238 0%, #102027 100%);
+      border: 3px solid var(--orange-dbz);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 44px; box-shadow: 0 10px 25px rgba(0,0,0,0.6); margin-bottom: 10px;
+    }
+    .edificio-nivel-actual {
+      font-size: 13px; font-weight: 800; color: var(--orange-gold);
+      background: rgba(255,152,0,0.12); border: 1px solid var(--border-glow);
+      padding: 3px 12px; border-radius: 10px; margin-bottom: 12px;
+    }
+    .edificio-stats-box {
+      width: 100%; max-width: 300px; background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+      padding: 12px 14px; margin-bottom: 16px;
+    }
+    .edificio-stat-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; color: #CFD8DC; padding: 5px 0;
+      border-bottom: 1px dashed rgba(255,255,255,0.08);
+    }
+    .edificio-stat-row:last-child { border-bottom: none; }
+    .edificio-stat-row b { color: #FFF; }
+    .btn-mejorar {
+      width: 100%; max-width: 300px; border: none; cursor: pointer;
+      background: linear-gradient(135deg, var(--orange-gold), var(--orange-dbz));
+      color: #101010; font-weight: 900; font-size: 14px; letter-spacing: 0.5px;
+      padding: 12px 10px; border-radius: 12px; box-shadow: 0 6px 16px rgba(255,152,0,0.35);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+    .btn-mejorar:active { transform: scale(0.97); }
+    .btn-mejorar.disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-cerrar-modal {
+      margin-top: 12px; background: none; border: 1px solid rgba(255,255,255,0.2);
+      color: #90A4AE; padding: 8px 20px; border-radius: 10px; font-size: 12px; cursor: pointer;
+    }
 
-        .shenron-img {
-            max-width: 100%;
-            max-height: 220px;
-            border-radius: 8px;
-            object-fit: contain;
-            border: 1px solid #334155;
-            background: #000;
-        }
-
-        .fallback-text {
-            display: none;
-            color: var(--danger);
-            font-size: 0.85rem;
-            margin-top: 8px;
-        }
-    </style>
+    /* --- TOAST DE NOTIFICACIONES --- */
+    #toast {
+      position: absolute; left: 50%; bottom: 90px; transform: translateX(-50%) translateY(20px);
+      background: rgba(10, 14, 22, 0.96); border: 1px solid var(--orange-gold);
+      color: #FFF; font-size: 12px; font-weight: 700; padding: 10px 18px;
+      border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+      z-index: 60; opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease;
+      max-width: 85%; text-align: center;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
 </head>
 <body>
 
-    <!-- 1. PANTALLA DE SELECCIÓN DE HÉROE INICIAL (Obligatoria) -->
-    <div id="hero-selection-screen" class="screen active">
-        <h2>Selecciona tu Héroe Inicial</h2>
-        <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 10px;">Esta decisión marcará tu punto de partida en el reino.</p>
-        <div class="hero-grid">
-            <div class="hero-card" onclick="selectInitialHero('Goku Kid', 'Ataque veloz y gran afinidad física.')">
-                <h3>Goku Kid</h3>
-                <p>Habilidad: Ataque veloz y gran afinidad física.</p>
-            </div>
-            <div class="hero-card" onclick="selectInitialHero('Krilin Z', 'Técnica defensiva y control de ki básico.')">
-                <h3>Krilin Z</h3>
-                <p>Habilidad: Técnica defensiva y control de ki básico.</p>
-            </div>
-            <div class="hero-card" onclick="selectInitialHero('Yamcha', 'Golpe de zorro y agilidad en terreno abierto.')">
-                <h3>Yamcha</h3>
-                <p>Habilidad: Golpe de zorro y agilidad en terreno abierto.</p>
-            </div>
+  <div id="app-wrapper">
+
+    <!-- BARRA SUPERIOR -->
+    <div id="header">
+      <div class="profile-badge">
+        <div class="avatar-frame">
+          Z
+          <span class="level-tag">30</span>
         </div>
+      </div>
+      <div class="resources-bar">
+        <!-- BALANCE DE MONEDAS CON ASSET ZENI -->
+        <div class="res-item">
+         <img src="/assets/zeni.png" alt="Zeni" class="icon-zeni" width="24" height="24">
+          <span id="res-zeni">1.25K</span>
+        </div>
+        <div class="res-item">⚡ <span id="res-energia">100</span></div>
+        <div class="res-item">🔮 <span id="res-dragonballs">0</span>/7</div>
+      </div>
     </div>
 
-    <!-- APLICACIÓN PRINCIPAL (Oculta hasta seleccionar héroe) -->
-    <div id="main-app" style="display: none; flex: 1; flex-direction: column; overflow: hidden;">
-        
-        <!-- Barra superior con recursos -->
-        <div class="top-bar">
-            <span id="player-hero-tag" style="font-size: 0.85rem; font-weight: bold; color: var(--accent);">Héroe: Ninguno</span>
-            <div class="resource-badge">⚡ Zeni: <span id="zeni-count">100</span></div>
+    <!-- VIEWPORT MAPA CON DRAG & SCROLL -->
+    <div id="map-viewport">
+      
+      <!-- LIENZO 1: ALDEA ISOMÉTRICA -->
+      <div id="map-canvas-aldea" class="active-canvas">
+        <div class="path-iso" style="top: 200px; left: 35%; width: 140px; height: 16px; transform: rotate(35deg);"></div>
+        <div class="path-iso" style="top: 200px; left: 42%; width: 140px; height: 16px; transform: rotate(-35deg);"></div>
+
+        <div class="iso-slot-wrapper" style="top: 160px; left: 50%;" onclick="openBuildingModal('casa')">
+          <div class="iso-base" style="border-color: #FF8A80;"></div>
+          <div class="iso-content">
+            <div class="building-badge-3d" style="border-color: #FF8A80;">🏠</div>
+            <div class="building-tag" id="tag-casa"><span class="lvl-num">Nv. 30</span> Casa Kame</div>
+          </div>
         </div>
 
-        <!-- Pestaña 1: Laboratorio (Cápsula) -->
-        <div id="tab-lab" class="screen active">
-            <div class="panel">
-                <h2>Cápsula de Recuperación</h2>
-                <p style="font-size: 0.85rem; color: var(--text-dim);">Tu héroe principal seleccionado se encuentra resguardado aquí.</p>
-                
-                <div class="timer-box">
-                    <span id="capsule-hero-name" style="font-weight: bold; font-size: 1.1k; color: var(--text);">Héroe en Cápsula</span>
-                    <div class="countdown" id="countdown-timer">71:59:59</div>
-                    <p style="font-size: 0.75rem; color: var(--text-dim); margin-top: 6px;">Estado: En incubación / reposo</p>
-                </div>
-            </div>
+        <div class="iso-slot-wrapper" style="top: 340px; left: 26%;" onclick="openBuildingModal('capsula')">
+          <div class="iso-base" style="border-color: #80DEEA;"></div>
+          <div class="iso-content">
+            <div class="building-badge-3d" style="border-color: #80DEEA;">🧪</div>
+            <div class="building-tag" id="tag-capsula"><span class="lvl-num">Nv. 28</span> Cápsula Lab</div>
+          </div>
         </div>
 
-        <!-- Pestaña 2: Aldea -->
-        <div id="tab-village" class="screen">
-            <div class="panel" style="text-align: center; padding: 24px;">
-                <h2>Aldea Principal</h2>
-                <p style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 20px;">Un asentamiento tranquilo en el borde de las montañas.</p>
-                <button class="btn" onclick="triggerElderMessage()">Visitar al Anciano de la Aldea</button>
-            </div>
+        <div class="iso-slot-wrapper" style="top: 340px; left: 74%;" onclick="openBuildingModal('dojo')">
+          <div class="iso-base" style="border-color: #FFB74D;"></div>
+          <div class="iso-content">
+            <div class="building-badge-3d" style="border-color: #FFB74D;">⚔️</div>
+            <div class="building-tag" id="tag-dojo"><span class="lvl-num">Nv. 28</span> Dojo Z</div>
+          </div>
         </div>
+      </div>
 
-        <!-- Pestaña 3: Guerreros -->
-        <div id="tab-warriors" class="screen">
-            <div class="panel">
-                <h2>Escuadrón de Guerreros</h2>
-                <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 12px;">Guerreros reclutados y listos para la batalla.</p>
-                <div id="warriors-list">
-                    <p style="font-size: 0.85rem; color: var(--text-dim); font-style: italic;" id="no-warriors-msg">Aún no hay guerreros auxiliares reclutados.</p>
-                </div>
-            </div>
+      <!-- LIENZO 2: GALAXIA Y PLANETAS -->
+      <div id="map-canvas-planetas">
+        <div class="planet-wrapper" style="top: 160px; left: 50%;" onclick="alert('Explorando La Tierra')">
+          <div class="planet-sphere planet-tierra"></div>
+          <div class="planet-info">🌍 Tierra</div>
         </div>
-
-        <!-- Pestaña 4: Altar de Shenron (Corrección de imagen multi-plataforma) -->
-        <div id="tab-shenron" class="screen">
-            <div class="panel">
-                <h2>Altar Sagrado de Shenron</h2>
-                <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 15px;">Invoca el poder del dragón sagrado.</p>
-                
-                <div class="shenron-container">
-                    <!-- Rutas seguras y manejo de error tanto para móvil (Telegram Webview) como PC -->
-                    <img id="shenron-img" 
-                         src="https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&auto=format&fit=crop&q=60" 
-                         alt="Shenron Dragon" 
-                         class="shenron-img"
-                         onerror="handleImageError(this)">
-                    <div id="shenron-fallback" class="fallback-text">⚠️ No se pudo cargar la imagen del dragón en este dispositivo. El altar sigue activo.</div>
-                </div>
-            </div>
+        <div class="planet-wrapper" style="top: 360px; left: 30%;" onclick="alert('Viajando a Namek')">
+          <div class="planet-sphere planet-namek"></div>
+          <div class="planet-info">🪐 Namek</div>
         </div>
+        <div class="planet-wrapper" style="top: 560px; left: 70%;" onclick="alert('Universo 1')">
+          <div class="planet-sphere planet-u1"></div>
+          <div class="planet-info">🔴 Universo 1</div>
+        </div>
+        <div class="planet-wrapper" style="top: 760px; left: 32%;" onclick="alert('Universo 2')">
+          <div class="planet-sphere planet-u2"></div>
+          <div class="planet-info">🟣 Universo 2</div>
+        </div>
+        <div class="planet-wrapper" style="top: 960px; left: 68%;" onclick="alert('Universo 3')">
+          <div class="planet-sphere planet-u3"></div>
+          <div class="planet-info">🟠 Universo 3</div>
+        </div>
+        <div class="planet-wrapper" style="top: 1160px; left: 30%;" onclick="alert('Universo 4')">
+          <div class="planet-sphere planet-u4"></div>
+          <div class="planet-info">🟢 Universo 4</div>
+        </div>
+        <div class="planet-wrapper" style="top: 1360px; left: 50%;" onclick="alert('Universo 5')">
+          <div class="planet-sphere planet-u5"></div>
+          <div class="planet-info">⚪ Universo 5</div>
+        </div>
+      </div>
 
-        <!-- Barra de Navegación Inferior -->
-        <nav class="nav-bar">
-            <button class="nav-item active" onclick="switchTab('lab', this)">
-                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
-                Cápsula
-            </button>
-            <button class="nav-item" onclick="switchTab('village', this)">
-                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-                Aldea
-            </button>
-            <button class="nav-item" onclick="switchTab('warriors', this)">
-                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                Guerreros
-            </button>
-            <button class="nav-item" onclick="switchTab('shenron', this)">
-                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                Shenron
-            </button>
-        </nav>
+      <!-- MENU FLOTANTE -->
+      <div class="floating-menu">
+        <div class="circle-btn">🎁 <span class="badge-dot"></span></div>
+        <div class="circle-btn" style="border-color: #FFB300;">👑 <span class="badge-dot"></span></div>
+        <div class="circle-btn">💬</div>
+      </div>
+
+      <!-- MODALES DE VISTA PARA OTRAS PESTAÑAS -->
+      <div id="modal-capsula" class="view-modal">
+        <div class="modal-title">🧪 Cápsula Corp Lab</div>
+        <p style="text-align: center; color: #AAA; font-size: 13px;">Tecnología e investigaciones especiales.</p>
+        <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
+      </div>
+
+      <div id="modal-guerreros" class="view-modal">
+        <div class="modal-title">⚔️ Escuadrón Z</div>
+        <p style="text-align: center; color: #AAA; font-size: 13px;">Gestión de luchadores y formaciones.</p>
+        <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
+      </div>
+
+      <div id="modal-minteo" class="view-modal">
+        <div class="modal-title">✨ Tienda de Invocación</div>
+        <p style="text-align: center; color: #AAA; font-size: 13px;">Invoca cofres y fragmentos NFT de personajes.</p>
+        <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
+      </div>
+
+      <!-- MODAL SHENRON CON SU ASSET PNG -->
+      <div id="modal-bolas" class="view-modal">
+        <div class="modal-title">🐉 Altar de Shenron</div>
+       <img src="public/assets/shenron.png" alt="Shenron" class="shenron-hero">
+        <p style="text-align: center; color: #AAA; font-size: 13px; max-width: 280px;">Reúne las 7 esferas del dragón para invocar a Shenron y pedir tu deseo.</p>
+        <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
+      </div>
+
+      <!-- MODAL DE MEJORA DE EDIFICIO (ALDEA) -->
+      <div id="modal-edificio" class="view-modal">
+        <div class="modal-title" id="modal-edificio-titulo">🏠 Casa Kame</div>
+        <div class="edificio-icon-grande" id="modal-edificio-icono">🏠</div>
+        <div class="edificio-nivel-actual" id="modal-edificio-nivel">Nivel 30</div>
+        <div class="edificio-stats-box">
+          <div class="edificio-stat-row">
+            <span>Producción actual</span>
+            <b id="modal-edificio-prod-actual">0 Zeni/h</b>
+          </div>
+          <div class="edificio-stat-row">
+            <span>Producción tras mejorar</span>
+            <b id="modal-edificio-prod-siguiente">0 Zeni/h</b>
+          </div>
+          <div class="edificio-stat-row">
+            <span>Coste de mejora</span>
+            <b id="modal-edificio-coste">0 Zeni</b>
+          </div>
+        </div>
+        <button class="btn-mejorar" id="btn-mejorar-edificio" onclick="upgradeBuildingClick()">
+          ⬆️ <span id="btn-mejorar-texto">Mejorar edificio</span>
+        </button>
+        <button class="btn-cerrar-modal" onclick="closeModals()">Cerrar</button>
+      </div>
+
     </div>
 
-    <!-- MODAL: Mensaje del Anciano Saiyan (Solo salta al pulsar el botón de la Aldea) -->
-    <div id="elder-modal" class="modal-overlay">
-        <div class="modal-card">
-            <h3>Anciano Saiyan</h3>
-            <p>¡Saludos, joven guerrero! Los tiempos oscuros se acercan al reino. Acepta mi guía y únete a tu causa para restaurar el equilibrio.</p>
-            <button class="btn" onclick="acceptElderRecruit()">Reclamar y Reclutar</button>
-        </div>
+    <!-- TOAST DE NOTIFICACIONES -->
+    <div id="toast"></div>
+
+    <!-- BARRA DE NAVEGACIÓN INFERIOR -->
+    <div id="nav-bar">
+      <button class="nav-tab" onclick="switchTab('capsula')">
+        <span class="nav-icon">🧪</span>
+        <span>Cápsula</span>
+      </button>
+      <button class="nav-tab active" onclick="switchTab('aldea')">
+        <span class="nav-icon">🏘️</span>
+        <span>Aldea</span>
+      </button>
+      <button class="nav-tab" onclick="switchTab('guerreros')">
+        <span class="nav-icon">⚔️</span>
+        <span>Guerreros</span>
+      </button>
+      <button class="nav-tab" onclick="switchTab('planetas')">
+        <span class="nav-icon">🌌</span>
+        <span>Planetas</span>
+      </button>
+      <button class="nav-tab" onclick="switchTab('minteo')">
+        <span class="nav-icon">✨</span>
+        <span>Minteo</span>
+      </button>
+      <button class="nav-tab" onclick="switchTab('bolas')">
+        <span class="nav-icon">🐉</span>
+        <span>Shenron</span>
+      </button>
     </div>
 
-    <script>
-        let gameState = {
-            heroName: "",
-            heroDesc: "",
-            elderRecruited: false,
-            zeni: 100
-        };
+  </div>
 
-        // 1. Selección de Héroe inicial obligatorio
-        function selectInitialHero(name, desc) {
-            gameState.heroName = name;
-            gameState.heroDesc = desc;
+  <script>
+    const tg = window.Telegram?.WebApp;
+    if (tg) { tg.ready(); }
 
-            document.getElementById('player-hero-tag').innerText = `Héroe: ${name}`;
-            document.getElementById('capsule-hero-name').innerText = `${name} (Principal)`;
+    const viewport = document.getElementById('map-viewport');
+    let activeCanvas = document.getElementById('map-canvas-aldea');
 
-            // Ocultar pantalla de selección y mostrar app principal
-            document.getElementById('hero-selection-screen').classList.remove('active');
-            document.getElementById('main-app').style.display = 'flex';
+    let isDragging = false;
+    let startY = 0;
+    let currentTranslateY = 0;
 
-            // Iniciar contador de 72 horas para la cápsula
-            startCapsuleCountdown(72 * 3600);
-        }
+    function getActiveCanvas() { return activeCanvas; }
 
-        // 2. Temporizador activo de 72 horas en Cápsula
-        function startCapsuleCountdown(durationInSeconds) {
-            let timer = durationInSeconds;
-            setInterval(() => {
-                let hours = Math.floor(timer / 3600);
-                let minutes = Math.floor((timer % 3600) / 60);
-                let seconds = timer % 60;
+    const minTranslateY = () => viewport.clientHeight - getActiveCanvas().clientHeight;
+    const maxTranslateY = 0;
 
-                hours = hours < 10 ? "0" + hours : hours;
-                minutes = minutes < 10 ? "0" + minutes : minutes;
-                seconds = seconds < 10 ? "0" + seconds : seconds;
+    function setTranslateY(y) {
+      currentTranslateY = Math.max(minTranslateY(), Math.min(maxTranslateY, y));
+      getActiveCanvas().style.transform = `translateY(${currentTranslateY}px)`;
+    }
 
-                const timerElement = document.getElementById('countdown-timer');
-                if (timerElement) {
-                    timerElement.innerText = `${hours}:${minutes}:${seconds}`;
-                }
+    viewport.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('.iso-slot-wrapper') || e.target.closest('.planet-wrapper') || e.target.closest('.circle-btn') || e.target.closest('.view-modal')) return;
+      isDragging = true;
+      startY = e.clientY - currentTranslateY;
+    });
 
-                if (timer > 0) {
-                    timer--;
-                }
-            }, 1000);
-        }
+    window.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      setTranslateY(e.clientY - startY);
+    });
 
-        // Navegación entre pestañas
-        function switchTab(tabName, element) {
-            document.querySelectorAll('.screen').forEach(s => {
-                if(s.id !== 'hero-selection-screen') s.classList.remove('active');
-            });
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    window.addEventListener('pointerup', () => { isDragging = false; });
+    window.addEventListener('pointercancel', () => { isDragging = false; });
 
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-            element.classList.add('active');
-        }
+    viewport.addEventListener('wheel', (e) => {
+      setTranslateY(currentTranslateY - e.deltaY);
+    }, { passive: true });
 
-        // 3. El mensaje del Anciano Saiyan salta UNICAMENTE al hacer clic en el botón de la aldea
-        function triggerElderMessage() {
-            if (gameState.elderRecruited) {
-                alert("Ya has visitado al Anciano Saiyan y se encuentra en tus filas.");
-                return;
+    function closeModals() {
+      document.querySelectorAll('.view-modal').forEach(el => el.classList.remove('active'));
+    }
+
+    function switchTab(tabId) {
+      closeModals();
+      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+      
+      const tabs = ['capsula', 'aldea', 'guerreros', 'planetas', 'minteo', 'bolas'];
+      const btnIndex = tabs.indexOf(tabId);
+      if (btnIndex !== -1) document.querySelectorAll('.nav-tab')[btnIndex].classList.add('active');
+
+      document.getElementById('map-canvas-aldea').style.display = 'none';
+      document.getElementById('map-canvas-planetas').style.display = 'none';
+
+      currentTranslateY = 0;
+
+      if (tabId === 'aldea') {
+        activeCanvas = document.getElementById('map-canvas-aldea');
+        activeCanvas.style.display = 'block';
+        activeCanvas.style.transform = `translateY(0px)`;
+      } else if (tabId === 'planetas') {
+        activeCanvas = document.getElementById('map-canvas-planetas');
+        activeCanvas.style.display = 'block';
+        activeCanvas.style.transform = `translateY(0px)`;
+      } else {
+        openModal(tabId);
+      }
+    }
+
+    function openModal(id) {
+      closeModals();
+      const target = document.getElementById(`modal-${id}`);
+      if (target) target.classList.add('active');
+    }
+
+    // ==========================================================
+    // SISTEMA DE MEJORAS DE EDIFICIOS (ALDEA)
+    // ==========================================================
+    const SAVE_KEY = 'dbz_realm_save_v1';
+    const MAX_OFFLINE_SECONDS = 8 * 3600; // tope de 8h de ganancias offline
+
+    const DEFAULT_STATE = {
+      zeni: 1250,
+      energia: 100,
+      dragonballs: 0,
+      buildings: {
+        casa:    { name: 'Casa Kame',   icon: '🏠', level: 30, baseCost: 500, costGrowth: 1.18, baseProdHour: 120, prodGrowth: 1.12 },
+        capsula: { name: 'Cápsula Lab', icon: '🧪', level: 28, baseCost: 400, costGrowth: 1.16, baseProdHour: 95,  prodGrowth: 1.11 },
+        dojo:    { name: 'Dojo Z',      icon: '⚔️', level: 28, baseCost: 450, costGrowth: 1.17, baseProdHour: 105, prodGrowth: 1.115 }
+      },
+      lastTick: Date.now()
+    };
+
+    let state = loadState();
+    let currentEdificioId = null;
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
+        const parsed = JSON.parse(raw);
+        const merged = JSON.parse(JSON.stringify(DEFAULT_STATE));
+        merged.zeni = typeof parsed.zeni === 'number' ? parsed.zeni : merged.zeni;
+        merged.energia = typeof parsed.energia === 'number' ? parsed.energia : merged.energia;
+        merged.dragonballs = typeof parsed.dragonballs === 'number' ? parsed.dragonballs : merged.dragonballs;
+        merged.lastTick = typeof parsed.lastTick === 'number' ? parsed.lastTick : Date.now();
+        if (parsed.buildings) {
+          Object.keys(merged.buildings).forEach(id => {
+            if (parsed.buildings[id] && typeof parsed.buildings[id].level === 'number') {
+              merged.buildings[id].level = parsed.buildings[id].level;
             }
-            document.getElementById('elder-modal').style.display = 'flex';
+          });
         }
+        return merged;
+      } catch (e) {
+        return JSON.parse(JSON.stringify(DEFAULT_STATE));
+      }
+    }
 
-        // 4. Tras aceptar, se traslada a la sección de Guerreros como "Anciano Saiyan nivel 1"
-        function acceptElderRecruit() {
-            gameState.elderRecruited = true;
-            document.getElementById('elder-modal').style.display = 'none';
+    function saveState() {
+      state.lastTick = Date.now();
+      try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (e) {}
+    }
 
-            // Actualizar sección de guerreros
-            const warriorsList = document.getElementById('warriors-list');
-            document.getElementById('no-warriors-msg').style.display = 'none';
+    function buildingProdPerHour(b, level) {
+      const lvl = level !== undefined ? level : b.level;
+      return b.baseProdHour * Math.pow(b.prodGrowth, lvl - 1);
+    }
 
-            const warriorCard = document.createElement('div');
-            warriorCard.style.cssText = "background: rgba(15, 23, 42, 0.6); border: 1px solid var(--accent); border-radius: 8px; padding: 12px; margin-top: 8px;";
-            warriorCard.innerHTML = `
-                <strong style="color: var(--accent);">Anciano Saiyan</strong>
-                <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 4px;">Nivel: 1 | Estado: Activo en plantilla</p>
-            `;
-            warriorsList.appendChild(warriorCard);
+    function buildingUpgradeCost(b) {
+      return Math.floor(b.baseCost * Math.pow(b.costGrowth, b.level - 1));
+    }
 
-            alert("¡Has reclutado al Anciano Saiyan! Ahora forma parte de tu sección de Guerreros.");
-        }
+    function totalProdPerHour() {
+      return Object.values(state.buildings).reduce((sum, b) => sum + buildingProdPerHour(b), 0);
+    }
 
-        // 5. Manejo seguro de errores de imagen para Shenron (PC y Móvil/Telegram)
-        function handleImageError(imgElement) {
-            imgElement.style.display = 'none';
-            document.getElementById('shenron-fallback').style.display = 'block';
-        }
-    </script>
+    function formatZeni(n) {
+      n = Math.floor(n);
+      if (n >= 1000000) return (n / 1000000).toFixed(2).replace(/\.00$/, '') + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(2).replace(/\.00$/, '') + 'K';
+      return String(n);
+    }
+
+    function updateResourceBar() {
+      document.getElementById('res-zeni').textContent = formatZeni(state.zeni);
+      document.getElementById('res-energia').textContent = Math.floor(state.energia);
+      document.getElementById('res-dragonballs').textContent = state.dragonballs;
+    }
+
+    function updateBuildingTags() {
+      Object.entries(state.buildings).forEach(([id, b]) => {
+        const tagEl = document.getElementById(`tag-${id}`);
+        if (tagEl) tagEl.innerHTML = `<span class="lvl-num">Nv. ${b.level}</span> ${b.name}`;
+      });
+    }
+
+    function showToast(msg, duration = 2200) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => toast.classList.remove('show'), duration);
+    }
+
+    function openBuildingModal(id) {
+      currentEdificioId = id;
+      renderBuildingModal(id);
+      closeModals();
+      document.getElementById('modal-edificio').classList.add('active');
+    }
+
+    function renderBuildingModal(id) {
+      const b = state.buildings[id];
+      if (!b) return;
+      const cost = buildingUpgradeCost(b);
+      const prodActual = buildingProdPerHour(b);
+      const prodSiguiente = buildingProdPerHour(b, b.level + 1);
+
+      document.getElementById('modal-edificio-titulo').textContent = `${b.icon} ${b.name}`;
+      document.getElementById('modal-edificio-icono').textContent = b.icon;
+      document.getElementById('modal-edificio-nivel').textContent = `Nivel ${b.level}`;
+      document.getElementById('modal-edificio-prod-actual').textContent = `${formatZeni(prodActual)} Zeni/h`;
+      document.getElementById('modal-edificio-prod-siguiente').textContent = `${formatZeni(prodSiguiente)} Zeni/h`;
+      document.getElementById('modal-edificio-coste').textContent = `${formatZeni(cost)} Zeni`;
+
+      const btn = document.getElementById('btn-mejorar-edificio');
+      const btnTexto = document.getElementById('btn-mejorar-texto');
+      if (state.zeni < cost) {
+        btn.classList.add('disabled');
+        btnTexto.textContent = `Necesitas ${formatZeni(cost)} Zeni`;
+      } else {
+        btn.classList.remove('disabled');
+        btnTexto.textContent = `Mejorar a Nv. ${b.level + 1} (${formatZeni(cost)} Zeni)`;
+      }
+    }
+
+    function upgradeBuildingClick() {
+      if (!currentEdificioId) return;
+      const b = state.buildings[currentEdificioId];
+      const cost = buildingUpgradeCost(b);
+      if (state.zeni < cost) {
+        showToast('❌ No tienes suficiente Zeni');
+        return;
+      }
+      state.zeni -= cost;
+      b.level += 1;
+      saveState();
+      updateResourceBar();
+      updateBuildingTags();
+      renderBuildingModal(currentEdificioId);
+      showToast(`✅ ${b.name} mejorada a Nv. ${b.level}`);
+    }
+
+    function applyOfflineEarnings() {
+      const elapsedSeconds = Math.max(0, (Date.now() - state.lastTick) / 1000);
+      if (elapsedSeconds < 30) return; // no molestar por reentradas rápidas
+      const cappedSeconds = Math.min(elapsedSeconds, MAX_OFFLINE_SECONDS);
+      const earned = totalProdPerHour() * (cappedSeconds / 3600);
+      if (earned > 0) {
+        state.zeni += earned;
+        showToast(`🎁 Ganaste ${formatZeni(earned)} Zeni mientras estabas fuera`, 3200);
+      }
+    }
+
+    function startProductionLoop() {
+      setInterval(() => {
+        state.zeni += totalProdPerHour() / 3600; // producción por segundo
+        updateResourceBar();
+        saveState();
+      }, 1000);
+    }
+
+    // ---- INICIALIZACIÓN DEL JUEGO ----
+    applyOfflineEarnings();
+    updateResourceBar();
+    updateBuildingTags();
+    saveState();
+    startProductionLoop();
+  </script>
 </body>
 </html>
