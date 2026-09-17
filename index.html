@@ -1,945 +1,133 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Dragon Bot Z - Realm & Galaxy</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    :root {
-      --orange-dbz: #FF9800;
-      --orange-gold: #FFB300;
-      --bg-dark: #090B10;
-      --panel-bg: rgba(13, 17, 26, 0.95);
-      --border-glow: rgba(255, 152, 0, 0.4);
-    }
-
-    .shenron-hero {
-      width: 680px !important;
-      max-width: 92vw !important;
-      height: auto !important;
-      object-fit: contain;
-      margin: 15px auto;
-      filter: drop-shadow(0 0 28px rgba(76, 175, 80, 0.55));
-      animation: floatShenron 4s ease-in-out infinite alternate;
-    }
-
-    .zeni-icon, #zeni-icon {
-      width: 28px;
-      height: 28px;
-      vertical-align: middle;
-      object-fit: contain;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    
-    body {
-      background-color: var(--bg-dark);
-      color: #fff;
-      height: 100vh;
-      width: 100vw;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    #app-wrapper {
-      width: 100%;
-      max-width: 450px;
-      height: 100vh;
-      max-height: 920px;
-      background-color: #10141e;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
-    }
-
-    @media (min-width: 481px) {
-      #app-wrapper {
-        height: 92vh;
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-      }
-    }
-
-    #header {
-      background: linear-gradient(180deg, rgba(15,20,30,0.95) 0%, rgba(15,20,30,0.8) 100%);
-      backdrop-filter: blur(8px);
-      padding: 8px 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 20;
-      border-bottom: 1px solid var(--border-glow);
-    }
-
-    .profile-badge { display: flex; align-items: center; gap: 8px; }
-    .avatar-frame {
-      width: 38px; height: 38px; border-radius: 50%;
-      background: linear-gradient(135deg, #FF9800, #F57C00);
-      border: 2px solid #FFF; display: flex; align-items: center; justify-content: center;
-      font-weight: bold; font-size: 14px; position: relative;
-      box-shadow: 0 0 10px rgba(255,152,0,0.5);
-    }
-    .level-tag {
-      position: absolute; bottom: -3px; left: -2px;
-      background: #E53935; color: #FFF; font-size: 8px; font-weight: 900;
-      padding: 1px 4px; border-radius: 6px; border: 1px solid #FFF;
-    }
-
-    .resources-bar {
-      display: flex; gap: 6px; background: rgba(0, 0, 0, 0.6);
-      padding: 4px 8px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
-    }
-    .res-item {
-      display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: bold;
-      padding: 2px 6px; border-radius: 10px; background: rgba(255, 255, 255, 0.05);
-    }
-
-    .icon-zeni {
-      width: 18px;
-      height: 18px;
-      object-fit: contain;
-      filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.6));
-    }
-
-    #map-viewport {
-      flex: 1;
-      position: relative;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      cursor: grab;
-      perspective: 1000px;
-    }
-    #map-viewport:active { cursor: grabbing; }
-
-    #map-canvas-aldea {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 1550px;
-      background: radial-gradient(circle at 50% 10%, #7CB342 0%, #4AF50 35%, #33691E 75%, #1B5E20 100%);
-      background-image: 
-        radial-gradient(rgba(255, 255, 255, 0.12) 2px, transparent 0),
-        radial-gradient(rgba(0, 0, 0, 0.2) 1.5px, transparent 0);
-      background-size: 30px 30px, 15px 15px;
-      display: block;
-    }
-
-    .path-iso {
-      position: absolute;
-      background: linear-gradient(90deg, #795548 0%, #8D6E63 50%, #6D4C41 100%);
-      border-radius: 12px;
-      box-shadow: inset 0 2px 5px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.3);
-      opacity: 0.85;
-    }
-
-    .iso-slot-wrapper {
-      position: absolute; transform: translate(-50%, -50%);
-      width: 140px; height: 120px; cursor: pointer;
-    }
-
-    .iso-base {
-      position: absolute; bottom: 0; width: 100%; height: 80px;
-      background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
-      border-radius: 20px; transform: rotateX(55deg) rotateZ(-45deg);
-      box-shadow: -5px 5px 0px #0D3B10, -10px 10px 0px #061F08, -15px 20px 25px rgba(0,0,0,0.6);
-      border: 3px solid #66BB6A; transition: all 0.2s ease;
-    }
-    .iso-slot-wrapper:hover .iso-base {
-      transform: rotateX(55deg) rotateZ(-45deg) translateZ(10px);
-      border-color: var(--orange-gold);
-    }
-
-    .iso-content {
-      position: absolute; top: 5px; left: 50%;
-      transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; z-index: 2;
-    }
-
-    .building-badge-3d {
-      width: 60px; height: 60px;
-      background: linear-gradient(135deg, #263238 0%, #102027 100%);
-      border: 2px solid var(--orange-dbz);
-      border-radius: 16px; display: flex; align-items: center; justify-content: center;
-      font-size: 32px; box-shadow: 0 10px 20px rgba(0,0,0,0.6); position: relative;
-    }
-    .building-tag {
-      margin-top: 6px; background: rgba(10, 14, 22, 0.92);
-      padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 800;
-      border: 1px solid var(--orange-gold); color: #FFF; white-space: nowrap;
-    }
-    .lvl-num { color: var(--orange-gold); }
-
-    .badge-alert {
-      position: absolute; top: -5px; right: -5px; width: 18px; height: 18px;
-      background: #E53935; border-radius: 50%; border: 2px solid #FFF;
-      animation: pulseAlert 1s infinite alternate; display: none;
-    }
-    @keyframes pulseAlert {
-      0% { transform: scale(1); opacity: 1; }
-      100% { transform: scale(1.3); opacity: 0.7; }
-    }
-
-    #map-canvas-planetas {
-      position: absolute; top: 0; left: 0; width: 100%; height: 1600px;
-      background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
-      overflow: hidden;
-      display: none;
-    }
-
-    #map-canvas-planetas::before {
-      content: " ";
-      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-      background-image: 
-        radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
-        radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)),
-        radial-gradient(1px 1px at 90px 40px, #ffe6ff, rgba(0,0,0,0)),
-        radial-gradient(2px 2px at 160px 120px, #80ffff, rgba(0,0,0,0));
-      background-repeat: repeat; background-size: 200px 200px;
-      animation: moveStarsSlow 100s linear infinite; opacity: 0.6; z-index: 1;
-    }
-
-    @keyframes moveStarsSlow {
-      from { transform: translateY(0); }
-      to { transform: translateY(-200px); }
-    }
-
-    .planet-wrapper {
-      position: absolute; transform: translate(-50%, -50%);
-      display: flex; flex-direction: column; align-items: center; cursor: pointer; z-index: 2;
-    }
-
-    .planet-sphere {
-      position: relative; border-radius: 50%;
-      box-shadow: inset -15px -15px 30px rgba(0,0,0,0.9), 0 0 25px rgba(255,255,255,0.15);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    .planet-tierra { width: 90px; height: 90px; background: radial-gradient(circle at 35% 35%, #4FC3F7 0%, #0288D1 50%, #01579B 100%); }
-    .planet-namek { width: 100px; height: 100px; background: radial-gradient(circle at 35% 35%, #AED581 0%, #558B2F 50%, #1B5E20 100%); }
-    .planet-u1 { width: 85px; height: 85px; background: radial-gradient(circle at 35% 35%, #FF8A80 0%, #D32F2F 50%, #880E4F 100%); }
-    .planet-u2 { width: 95px; height: 95px; background: radial-gradient(circle at 35% 35%, #CE93D8 0%, #7B1FA2 50%, #4A148C 100%); }
-    .planet-u3 { width: 80px; height: 80px; background: radial-gradient(circle at 35% 35%, #FFE082 0%, #F57F17 50%, #E65100 100%); }
-    .planet-u4 { width: 90px; height: 90px; background: radial-gradient(circle at 35% 35%, #80CBC4 0%, #00695C 50%, #004D40 100%); }
-    .planet-u5 { width: 105px; height: 105px; background: radial-gradient(circle at 35% 35%, #CFD8DC 0%, #546E7A 50%, #263238 100%); }
-
-    .planet-info {
-      margin-top: 8px; background: rgba(10, 14, 22, 0.9);
-      border: 1px solid var(--orange-gold); padding: 4px 10px; border-radius: 12px;
-      font-size: 11px; font-weight: 800; color: #FFF; box-shadow: 0 4px 15px rgba(0,0,0,0.8);
-    }
-
-    .floating-menu {
-      position: absolute; right: 10px; top: 15px;
-      display: flex; flex-direction: column; gap: 10px; z-index: 15;
-    }
-    .circle-btn {
-      width: 42px; height: 42px; border-radius: 50%;
-      background: rgba(15, 20, 30, 0.85); border: 2px solid var(--orange-dbz);
-      display: flex; align-items: center; justify-content: center; font-size: 18px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5); position: relative; cursor: pointer;
-    }
-    .badge-dot {
-      position: absolute; top: 1px; right: 1px; width: 10px; height: 10px;
-      background: #E53935; border-radius: 50%; border: 2px solid #FFF;
-    }
-
-    .view-modal {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      background: var(--panel-bg); backdrop-filter: blur(10px);
-      z-index: 25; display: none; padding: 20px; overflow-y: auto;
-    }
-    .view-modal.active { display: flex; flex-direction: column; align-items: center; }
-    
-    .modal-title {
-      font-size: 18px; font-weight: bold; color: var(--orange-dbz);
-      text-transform: uppercase; text-align: center; margin-bottom: 15px;
-      border-bottom: 1px solid var(--border-glow); padding-bottom: 8px; letter-spacing: 1px; width: 100%;
-    }
-
-    .retro-dialog-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.85); z-index: 100; display: flex;
-      justify-content: center; align-items: flex-end; padding: 15px;
-    }
-    .retro-box {
-      width: 100%; max-width: 420px; background: #F8F8F8; color: #111;
-      border: 4px solid #333; border-radius: 6px; padding: 15px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.9); font-family: monospace;
-      margin-bottom: 15px; position: relative;
-    }
-    .retro-box-title {
-      font-size: 12px; font-weight: bold; background: #333; color: #FFB300;
-      padding: 2px 8px; position: absolute; top: -12px; left: 10px; border-radius: 4px;
-    }
-    .retro-text {
-      font-size: 13px; line-height: 1.4; margin-bottom: 12px; color: #222;
-    }
-    .retro-btn {
-      background: #333; color: #FFF; border: 2px solid #000; padding: 6px 12px;
-      font-family: monospace; font-weight: bold; font-size: 12px; cursor: pointer;
-      border-radius: 4px; display: block; width: 100%; text-align: center; margin-top: 6px;
-    }
-    .retro-btn:hover { background: #555; }
-
-    /* --- ESTILOS BATALLA POKÉMON CLÁSICA --- */
-    #pokemon-battle-screen {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      background: linear-gradient(180deg, #D4A373 0%, #CCD5AE 60%, #588157 100%);
-      z-index: 200; display: none; flex-direction: column; justify-content: space-between;
-      padding: 12px; font-family: monospace;
-    }
-
-    /* Saibaman Arriba Derecha */
-    .battle-top-container {
-      display: flex; justify-content: space-between; align-items: flex-start; width: 100%; padding-top: 2px;
-    }
-    .battle-enemy-status {
-      background: rgba(248, 248, 248, 0.9); border: 3px solid #333;
-      border-radius: 6px; padding: 6px 10px; width: 200px; box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-    }
-    .battle-name-lvl { display: flex; justify-content: space-between; font-weight: bold; font-size: 11px; color: #222; margin-bottom: 3px; }
-    .battle-hp-bar-bg { background: #bbb; height: 7px; border-radius: 3px; border: 1px solid #333; overflow: hidden; }
-    .battle-hp-bar-fill { background: #4CAF50; height: 100%; width: 100%; transition: width 0.3s ease; }
-    
-    .battle-enemy-sprite { 
-      font-size: 60px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); 
-      animation: floatEnemy 2s ease-in-out infinite alternate; 
-    }
-
-    @keyframes floatEnemy {
-      0% { transform: translateY(0px); }
-      100% { transform: translateY(-8px); }
-    }
-
-    /* Anciano Saiyan (Más arriba y un pelin más a la derecha) */
-    .battle-bottom-container {
-      display: flex; justify-content: flex-start; align-items: flex-end; width: 100%; position: relative; padding-bottom: 12px; padding-left: 15px; gap: 12px;
-    }
-    .battle-player-sprite { 
-      font-size: 60px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); 
-    }
-    .battle-player-status {
-      background: rgba(248, 248, 248, 0.9); border: 3px solid #333;
-      border-radius: 6px; padding: 6px 10px; width: 200px; box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-      margin-bottom: 12px;
-    }
-
-    /* Caja de Diálogo y Menú Estilo Pokémon (Abajo del todo) */
-    .battle-control-box {
-      background: #F8F8F8; border: 4px solid #333; border-radius: 6px;
-      padding: 10px; display: grid; grid-template-columns: 1.3fr 1fr; gap: 8px;
-      width: 100%; box-shadow: 0 10px 25px rgba(0,0,0,0.6); z-index: 210;
-      margin-bottom: 4px;
-    }
-    .battle-msg { font-size: 11px; color: #222; font-weight: bold; line-height: 1.3; display: flex; align-items: center; }
-    
-    /* Grids de Botones (Menú principal y Menú de ataques) */
-    .battle-menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
-    .battle-menu-btn {
-      background: #333; color: #FFB300; border: 2px solid #000; padding: 8px 4px;
-      font-family: monospace; font-weight: bold; font-size: 11px; cursor: pointer; border-radius: 4px; text-align: center;
-    }
-    .battle-menu-btn:hover { background: #555; }
-    .battle-menu-btn:disabled { background: #777; color: #aaa; border-color: #555; cursor: not-allowed; }
-
-    /* ESTILOS TIENDA DE MINTEO / GACHA */
-    .gacha-container {
-      display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 320px; margin-top: 10px;
-    }
-    .gacha-card {
-      background: linear-gradient(135deg, rgba(25, 32, 48, 0.9), rgba(15, 20, 30, 0.95));
-      border: 2px solid var(--orange-dbz); border-radius: 16px; padding: 15px;
-      text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-      display: flex; flex-direction: column; align-items: center; gap: 8px;
-    }
-    .gacha-card.legendary {
-      border-color: #AB47BC; background: linear-gradient(135deg, rgba(40, 20, 50, 0.9), rgba(20, 10, 30, 0.95));
-    }
-    .gacha-icon { font-size: 40px; }
-    .gacha-name { font-size: 14px; font-weight: 800; color: #FFF; text-transform: uppercase; }
-    .gacha-desc { font-size: 11px; color: #AAA; }
-    .gacha-btn {
-      background: linear-gradient(135deg, #FF9800, #F57C00); color: #000; font-weight: bold; font-size: 12px;
-      border: none; padding: 8px 16px; border-radius: 10px; cursor: pointer;
-      box-shadow: 0 4px 10px rgba(255,152,0,0.4); text-transform: uppercase; margin-top: 5px;
-    }
-    .gacha-card.legendary .gacha-btn {
-      background: linear-gradient(135deg, #AB47BC, #7B1FA2); color: #FFF; box-shadow: 0 4px 10px rgba(171,71,188,0.4);
-    }
-    .gacha-result {
-      margin-top: 15px; padding: 12px; background: rgba(255,215,0,0.1);
-      border: 1px dashed var(--orange-gold); border-radius: 12px; text-align: center;
-      font-size: 13px; color: var(--orange-gold); display: none; width: 100%; max-width: 320px;
-    }
-
-    #nav-bar {
-      background: #090B10; display: grid; grid-template-columns: repeat(6, 1fr);
-      padding: 6px 2px 8px 2px; border-top: 1px solid var(--border-glow); z-index: 30;
-    }
-    .nav-tab {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background: none; border: none; color: #78909C; font-size: 8px; font-weight: 700;
-      gap: 3px; cursor: pointer; position: relative; padding: 4px 0; border-radius: 6px;
-      text-transform: uppercase;
-    }
-    .nav-tab.active { color: var(--orange-dbz); background: rgba(255, 152, 0, 0.12); }
-    .nav-tab.active::before {
-      content: ''; position: absolute; top: -6px; width: 20px; height: 2px;
-      background: var(--orange-dbz); border-radius: 2px; box-shadow: 0 0 6px var(--orange-dbz);
-    }
-    .nav-icon { font-size: 16px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini-App Dragon Ball</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #111; color: #fff; margin: 0; padding: 0; text-align: center; }
+        .hidden { display: none !important; }
+        #modal-heroe { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
+        .heroe-card { background: #222; border: 2px solid #f39c12; padding: 15px; margin: 10px; cursor: pointer; border-radius: 8px; width: 200px; display: inline-block; }
+        .heroe-card:hover { background: #333; }
+        header { background: #e67e22; padding: 10px; font-size: 1.2em; font-weight: bold; }
+        .container { padding: 20px; }
+        button { background: #e67e22; border: none; color: white; padding: 10px 20px; font-size: 1em; cursor: pointer; border-radius: 5px; margin-top: 10px; }
+        button:hover { background: #d35400; }
+        .section { margin-top: 20px; padding: 15px; background: #1a1a1a; border-radius: 8px; }
+        /* Solución de renderizado para Shenron en escritorio y móvil */
+        #shenron-img { max-width: 100%; height: auto; display: block; margin: 0 auto; object-fit: contain; }
+    </style>
 </head>
 <body>
 
-  <!-- POPUP INICIAL RETRO -->
-  <div id="intro-hero-modal" class="retro-dialog-overlay">
-    <div class="retro-box">
-      <div class="retro-box-title">SISTEMA DRAGON BOT Z</div>
-      <p class="retro-text">¡Bienvenido, guerrero! Te regalamos al Anciano Saiyan inicial para que se una a ti en tu aventura. Será enviado directo a la Cápsula Corp Lab.</p>
-      <button class="retro-btn" onclick="claimInitialHero()">¡Recibir Anciano Saiyan!</button>
-    </div>
-  </div>
-
-  <!-- POPUP DEL ANCIANO SAIYAN -->
-  <div id="elder-dialog-modal" class="retro-dialog-overlay" style="display: none;">
-    <div class="retro-box" style="border-color: #2E7D32;">
-      <div class="retro-box-title" style="background: #2E7D32; color: #FFF;">ANCIANO SAIYAN</div>
-      <p class="retro-text">"Hola... soy el último anciano de esta aldea. Me escondí tras el brutal ataque de los soldados de Freezer. ¡Vigila la Torre de Alerta, los Saibaman merodean los alrededores!"</p>
-      <button class="retro-btn" style="background: #2E7D32;" onclick="closeElderDialog()">¡Entendido, Anciano!</button>
-    </div>
-  </div>
-
-  <!-- POPUP PREGUNTA DE ATAQUE SAIBAMAN (SÍ / NO) -->
-  <div id="saibaman-attack-modal" class="retro-dialog-overlay" style="display: none;">
-    <div class="retro-box" style="border-color: #E53935;">
-      <div class="retro-box-title" style="background: #E53935; color: #FFF;">¡ALERTA DE ATAQUE!</div>
-      <p class="retro-text">¡Un SAIBAMAN salvaje ha sido detectado merodeando muy cerca de los cultivos de la aldea! ¿Deseas salir a enfrentarlo ahora mismo?</p>
-      <button class="retro-btn" style="background: #E53935;" onclick="responseSaibamanBattle(true)">¡Sí, a luchar!</button>
-      <button class="retro-btn" style="background: #777;" onclick="responseSaibamanBattle(false)">No, huir / ignorar</button>
-    </div>
-  </div>
-
-  <div id="app-wrapper">
-
-    <!-- BARRA SUPERIOR -->
-    <div id="header">
-      <div class="profile-badge">
-        <div class="avatar-frame">
-          Z
-          <span class="level-tag">30</span>
-        </div>
-      </div>
-      <div class="resources-bar">
-        <div class="res-item">
-          <img src="/assets/zeni.png" alt="Zeni" class="icon-zeni" width="24" height="24">
-          <span id="zeni-balance">1250</span>
-        </div>
-        <div class="res-item">⚡ 100</div>
-        <div class="res-item">🔮 0/7</div>
-      </div>
-    </div>
-
-    <!-- VIEWPORT MAPA CON DRAG & SCROLL -->
-    <div id="map-viewport">
-      
-      <!-- LIENZO 1: ALDEA ISOMÉTRICA -->
-      <div id="map-canvas-aldea" class="active-canvas">
-        <div class="path-iso" style="top: 200px; left: 35%; width: 140px; height: 16px; transform: rotate(35deg);"></div>
-        <div class="path-iso" style="top: 200px; left: 42%; width: 140px; height: 16px; transform: rotate(-35deg);"></div>
-
-        <div class="iso-slot-wrapper" style="top: 160px; left: 50%;" onclick="openModal('aldea-info')">
-          <div class="iso-base" style="border-color: #FF8A80;"></div>
-          <div class="iso-content">
-            <div class="building-badge-3d" style="border-color: #FF8A80;">🏠</div>
-            <div class="building-tag"><span class="lvl-num">Nv. 30</span> Casa Kame</div>
-          </div>
-        </div>
-
-        <div class="iso-slot-wrapper" style="top: 340px; left: 26%;" onclick="switchTab('capsula')">
-          <div class="iso-base" style="border-color: #80DEEA;"></div>
-          <div class="iso-content">
-            <div class="building-badge-3d" style="border-color: #80DEEA;">🧪</div>
-            <div class="building-tag"><span class="lvl-num">Nv. 28</span> Cápsula Lab</div>
-          </div>
-        </div>
-
-        <div class="iso-slot-wrapper" style="top: 340px; left: 74%;" onclick="switchTab('guerreros')">
-          <div class="iso-base" style="border-color: #FFB74D;"></div>
-          <div class="iso-content">
-            <div class="building-badge-3d" style="border-color: #FFB74D;">⚔️</div>
-            <div class="building-tag"><span class="lvl-num">Nv. 28</span> Dojo Z</div>
-          </div>
-        </div>
-
-        <!-- TORRE DE ALERTA DE SAIBAMAN -->
-        <div class="iso-slot-wrapper" style="top: 520px; left: 50%;" onclick="clickSaibamanTower()">
-          <div class="iso-base" style="border-color: #E53935;"></div>
-          <div class="iso-content">
-            <div class="building-badge-3d" style="border-color: #E53935;">
-              🚨
-              <div id="saibaman-red-dot" class="badge-alert" style="display: block;"></div>
+    <!-- 1. SELECCIÓN DE HÉROE INICIAL (Obligatorio al entrar) -->
+    <div id="modal-heroe">
+        <h2>Selecciona tu Héroe Inicial</h2>
+        <p>Debes escoger un héroe para comenzar tu aventura:</p>
+        <div>
+            <div class="heroe-card" onclick="seleccionarHeroe('Goku Kid', 'Bastón Mágico / Kamehameha básico')">
+                <h3>Goku Kid</h3>
+                <p>Habilidad: Kamehameha</p>
             </div>
-            <div class="building-tag"><span class="lvl-num" style="color:#E53935;">¡ALERTA!</span> Torre Saibaman</div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- LIENZO 2: GALAXIA Y PLANETAS -->
-      <div id="map-canvas-planetas">
-        <div class="planet-wrapper" style="top: 160px; left: 50%;" onclick="alert('Explorando La Tierra')">
-          <div class="planet-sphere planet-tierra"></div>
-          <div class="planet-info">🌍 Tierra</div>
-        </div>
-        <div class="planet-wrapper" style="top: 360px; left: 30%;" onclick="alert('Viajando a Namek')">
-          <div class="planet-sphere planet-namek"></div>
-          <div class="planet-info">🪐 Namek</div>
-        </div>
-        <div class="planet-wrapper" style="top: 560px; left: 70%;" onclick="alert('Universo 1')">
-          <div class="planet-sphere planet-u1"></div>
-          <div class="planet-info">🔴 Universo 1</div>
-        </div>
-        <div class="planet-wrapper" style="top: 760px; left: 32%;" onclick="alert('Universo 2')">
-          <div class="planet-sphere planet-u2"></div>
-          <div class="planet-info">🟣 Universo 2</div>
-        </div>
-        <div class="planet-wrapper" style="top: 960px; left: 68%;" onclick="alert('Universo 3')">
-          <div class="planet-sphere planet-u3"></div>
-          <div class="planet-info">🟠 Universo 3</div>
-        </div>
-        <div class="planet-wrapper" style="top: 1160px; left: 30%;" onclick="alert('Universo 4')">
-          <div class="planet-sphere planet-u4"></div>
-          <div class="planet-info">🟢 Universo 4</div>
-        </div>
-        <div class="planet-wrapper" style="top: 1360px; left: 50%;" onclick="alert('Universo 5')">
-          <div class="planet-sphere planet-u5"></div>
-          <div class="planet-info">⚪ Universo 5</div>
-        </div>
-      </div>
-
-      <!-- MENU FLOTANTE -->
-      <div class="floating-menu">
-        <div class="circle-btn">🎁 <span class="badge-dot"></span></div>
-        <div class="circle-btn" style="border-color: #FFB300;">👑 <span class="badge-dot"></span></div>
-        <div class="circle-btn">💬</div>
-      </div>
-
-      <!-- MODALES DE VISTA PARA OTRAS PESTAÑAS -->
-      <div id="modal-capsula" class="view-modal">
-        <div class="modal-title">🧪 Cápsula Corp Lab</div>
-        <p style="text-align: center; color: #AAA; font-size: 13px;">Tecnología e investigaciones especiales.</p>
-        <div id="capsula-status-hero" style="margin-top: 15px; padding: 10px; background: rgba(0,255,255,0.05); border: 1px solid #80DEEA; border-radius: 8px; font-size: 12px; text-align: center; color: #80DEEA; display: none;">
-          ⚡ Anciano Saiyan en el Lab (Listo para unirse)
-        </div>
-        <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
-      </div>
-
-      <div id="modal-guerreros" class="view-modal">
-        <div class="modal-title">⚔️ Escuadrón Z</div>
-        <p style="text-align: center; color: #AAA; font-size: 13px;">Gestión de luchadores y formaciones.</p>
-        <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
-      </div>
-
-      <!-- SECCIÓN DE MINTEO / CAJAS GACHA -->
-      <div id="modal-minteo" class="view-modal">
-        <div class="modal-title">✨ Tienda de Invocación</div>
-        <p style="text-align: center; color: #AAA; font-size: 12px; margin-bottom: 10px;">Abre cofres para invocar guerreros aleatorios.</p>
-        
-        <div class="gacha-container">
-          <div class="gacha-card">
-            <div class="gacha-icon">📦</div>
-            <div class="gacha-name">Caja Normal</div>
-            <div class="gacha-desc">Coste: 200 Zeni (Guerreros R & SR)</div>
-            <button class="gacha-btn" onclick="openGacha('normal')">Abrir Caja</button>
-          </div>
-
-          <div class="gacha-card legendary">
-            <div class="gacha-icon">🎁</div>
-            <div class="gacha-name">Caja Legendaria</div>
-            <div class="gacha-desc">Coste: 500 Zeni (Alta probabilidad SSR)</div>
-            <button class="gacha-btn" onclick="openGacha('legendary')">Invocar</button>
-          </div>
-        </div>
-
-        <div id="gacha-result-box" class="gacha-result"></div>
-
-        <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
-      </div>
-
-      <!-- MODAL SHENRON -->
-      <div id="modal-bolas" class="view-modal">
-        <div class="modal-title">🐉 Altar de Shenron</div>
-        <img src="public/assets/shenron.png" alt="Shenron" class="shenron-hero">
-        <p style="text-align: center; color: #AAA; font-size: 13px; max-width: 280px;">Reúne las 7 esferas del dragón para invocar a Shenron y pedir tu deseo.</p>
-        <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
-      </div>
-
-    </div>
-
-    <!-- PANTALLA DE BATALLA ESTILO POKÉMON -->
-    <div id="pokemon-battle-screen">
-      
-      <!-- Contenedor Superior (Saibaman Arriba Derecha) -->
-      <div class="battle-top-container">
-        <div class="battle-enemy-status">
-          <div class="battle-name-lvl">
-            <span id="enemy-battle-name">SAIBAMAN</span>
-            <span>Nv.15</span>
-          </div>
-          <div class="battle-hp-bar-bg">
-            <div id="enemy-hp-fill" class="battle-hp-bar-fill"></div>
-          </div>
-        </div>
-        <div class="battle-enemy-sprite">🌱👽</div>
-      </div>
-
-      <!-- Contenedor Inferior (Anciano Saiyan más arriba y más a la derecha) -->
-      <div style="display: flex; flex-direction: column; width: 100%;">
-        
-        <div class="battle-bottom-container">
-          <div class="battle-player-sprite">👴✨</div>
-          <div class="battle-player-status">
-            <div class="battle-name-lvl">
-              <span>ANCIANO SAIYAN</span>
-              <span>Nv.30</span>
+            <div class="heroe-card" onclick="seleccionarHeroe('Krillin', 'Kienzan / Disco Destructor')">
+                <h3>Krillin</h3>
+                <p>Habilidad: Kienzan</p>
             </div>
-            <div class="battle-hp-bar-bg">
-              <div id="player-hp-fill" class="battle-hp-bar-fill"></div>
+        </div>
+    </div>
+
+    <header>Dragon Ball Mini-App</header>
+
+    <div class="container">
+        <!-- 2. SECCIÓN DE CÁPSULA (Con cuenta atrás de 72 horas) -->
+        <div id="seccion-capsula" class="section">
+            <h2>Sección de Cápsula</h2>
+            <p>Héroe en recuperación/estasis:</p>
+            <p id="info-heroe-capsula">Ninguno</p>
+            <p>Tiempo restante: <span id="contador-capsula">72:00:00</span></p>
+        </div>
+
+        <!-- 3. BOTÓN DE LA ALDEA (Desencadenante del Anciano Sayán) -->
+        <div class="section">
+            <h2>Zona de Exploración</h2>
+            <button onclick="visitarAldea()">Visitar la Aldea</button>
+        </div>
+
+        <!-- 4. SECCIÓN DE GUERREROS -->
+        <div id="seccion-guerreros" class="section">
+            <h2>Sección de Guerreros</h2>
+            <div id="lista-guerreros">
+                <p>No hay guerreros reclutados todavía.</p>
             </div>
-          </div>
         </div>
 
-        <!-- Caja de Diálogo Estilo Pokémon (Abajo del todo) -->
-        <div class="battle-control-box">
-          <div id="battle-message-text" class="battle-msg">¿Qué hará el Anciano Saiyan?</div>
-          
-          <!-- Menú Principal (Atacar / Reclutar / Mochila / Huir) -->
-          <div id="battle-main-menu" class="battle-menu-grid">
-            <button class="battle-menu-btn" onclick="showAttackMenu()">⚔️ ATACAR</button>
-            <button class="battle-menu-btn" onclick="tryRecruit()">🎯 RECLUTAR</button>
-            <button class="battle-menu-btn" onclick="alert('Sin objetos disponibles')">🎒 MOCHILA</button>
-            <button class="battle-menu-btn" onclick="playerAction('huir')">🏃 HUIR</button>
-          </div>
-
-          <!-- Menú de Selección de Ataques (Oculto por defecto hasta pulsar ATACAR) -->
-          <div id="battle-attack-menu" class="battle-menu-grid" style="display: none;">
-            <button class="battle-menu-btn" id="btn-kame" onclick="playerAction('kame')">🌀 KAME HAME HA</button>
-            <button class="battle-menu-btn" onclick="playerAction('golpe')">👊 GOLPE</button>
-            <button class="battle-menu-btn" onclick="playerAction('patada')">🦵 PATADA</button>
-            <button class="battle-menu-btn" onclick="backToMainMenu()">↩️ VOLVER</button>
-          </div>
+        <!-- 5. VISUALIZACIÓN DE SHENRON (Optimizada para escritorio y móvil) -->
+        <div class="section">
+            <h2>Altar de Shenron</h2>
+            <img id="shenron-img" src="assets/shenron.png" alt="Shenron" onerror="this.src='https://via.placeholder.com/300x150?text=Shenron'">
         </div>
-
-      </div>
-
     </div>
 
-    <!-- BARRA DE NAVEGACIÓN INFERIOR -->
-    <div id="nav-bar">
-      <button class="nav-tab" onclick="switchTab('capsula')">
-        <span class="nav-icon">🧪</span>
-        <span>Cápsula</span>
-      </button>
-      <button class="nav-tab active" onclick="switchTab('aldea')">
-        <span class="nav-icon">🏘️</span>
-        <span>Aldea</span>
-      </button>
-      <button class="nav-tab" onclick="switchTab('guerreros')">
-        <span class="nav-icon">⚔️</span>
-        <span>Guerreros</span>
-      </button>
-      <button class="nav-tab" onclick="switchTab('planetas')">
-        <span class="nav-icon">🌌</span>
-        <span>Planetas</span>
-      </button>
-      <button class="nav-tab" onclick="switchTab('minteo')">
-        <span class="nav-icon">✨</span>
-        <span>Minteo</span>
-      </button>
-      <button class="nav-tab" onclick="switchTab('bolas')">
-        <span class="nav-icon">🐉</span>
-        <span>Shenron</span>
-      </button>
+    <!-- Modal del Mensaje del Anciano Sayán -->
+    <div id="modal-anciano" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center;">
+        <div style="background: #333; padding: 20px; border-radius: 8px; max-width: 300px;">
+            <h3>Anciano Sayán</h3>
+            <p>¡Saludos, guerrero! Veo gran potencial en ti. ¿Aceptas mi guía para unirte a tus filas?</p>
+            <button onclick="aceptarAnciano()">Aceptar y Reclutar</button>
+        </div>
     </div>
 
-  </div>
+    <script>
+        let heroeSeleccionado = null;
 
-  <script>
-    const tg = window.Telegram?.WebApp;
-    if (tg) { tg.ready(); }
-
-    const viewport = document.getElementById('map-viewport');
-    let activeCanvas = document.getElementById('map-canvas-aldea');
-
-    let isDragging = false;
-    let startY = 0;
-    let currentTranslateY = 0;
-
-    let playerZeni = 1250;
-    let hasClaimedHero = false;
-    let elderGreeted = false;
-    let saibamanActive = true;
-
-    let enemyHp = 100;
-    let playerHp = 100;
-    let kameCooldown = 0;
-
-    function claimInitialHero() {
-      hasClaimedHero = true;
-      document.getElementById('intro-hero-modal').style.display = 'none';
-      document.getElementById('capsula-status-hero').style.display = 'block';
-    }
-
-    function closeElderDialog() {
-      elderGreeted = true;
-      document.getElementById('elder-dialog-modal').style.display = 'none';
-    }
-
-    function getActiveCanvas() { return activeCanvas; }
-
-    const minTranslateY = () => viewport.clientHeight - getActiveCanvas().clientHeight;
-    const maxTranslateY = 0;
-
-    function setTranslateY(y) {
-      currentTranslateY = Math.max(minTranslateY(), Math.min(maxTranslateY, y));
-      getActiveCanvas().style.transform = `translateY(${currentTranslateY}px)`;
-    }
-
-    viewport.addEventListener('pointerdown', (e) => {
-      if (e.target.closest('.iso-slot-wrapper') || e.target.closest('.planet-wrapper') || e.target.closest('.circle-btn') || e.target.closest('.view-modal') || e.target.closest('.retro-dialog-overlay')) return;
-      isDragging = true;
-      startY = e.clientY - currentTranslateY;
-    });
-
-    window.addEventListener('pointermove', (e) => {
-      if (!isDragging) return;
-      setTranslateY(e.clientY - startY);
-    });
-
-    window.addEventListener('pointerup', () => { isDragging = false; });
-    window.addEventListener('pointercancel', () => { isDragging = false; });
-
-    viewport.addEventListener('wheel', (e) => {
-      setTranslateY(currentTranslateY - e.deltaY);
-    }, { passive: true });
-
-    function closeModals() {
-      document.querySelectorAll('.view-modal').forEach(el => el.classList.remove('active'));
-    }
-
-    function switchTab(tabId) {
-      closeModals();
-      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-      
-      const tabs = ['capsula', 'aldea', 'guerreros', 'planetas', 'minteo', 'bolas'];
-      const btnIndex = tabs.indexOf(tabId);
-      if (btnIndex !== -1) document.querySelectorAll('.nav-tab')[btnIndex].classList.add('active');
-
-      document.getElementById('map-canvas-aldea').style.display = 'none';
-      document.getElementById('map-canvas-planetas').style.display = 'none';
-
-      currentTranslateY = 0;
-
-      if (tabId === 'aldea') {
-        activeCanvas = document.getElementById('map-canvas-aldea');
-        activeCanvas.style.display = 'block';
-        activeCanvas.style.transform = `translateY(0px)`;
-        
-        if (!elderGreeted) {
-          document.getElementById('elder-dialog-modal').style.display = 'flex';
+        // 1. Lógica de Selección de Héroe
+        function seleccionarHeroe(nombre, habilidad) {
+            heroeSeleccionado = { nombre, habilidad };
+            document.getElementById('modal-heroe').style.display = 'none';
+            
+            // Rellenar sección cápsula
+            document.getElementById('info-heroe-capsula').innerText = `${nombre} (${habilidad})`;
+            
+            // 2. Iniciar cuenta atrás de 72 horas (en segundos: 72 * 3600)
+            iniciarContadorCapsula(72 * 3600);
         }
-      } else if (tabId === 'planetas') {
-        activeCanvas = document.getElementById('map-canvas-planetas');
-        activeCanvas.style.display = 'block';
-        activeCanvas.style.transform = `translateY(0px)`;
-      } else {
-        openModal(tabId);
-      }
-    }
 
-    function openModal(id) {
-      closeModals();
-      const target = document.getElementById(`modal-${id}`);
-      if (target) target.classList.add('active');
-    }
+        function iniciarContadorCapsula(duracionSegundos) {
+            let tiempo = duracionSegundos;
+            const timerElement = document.getElementById('contador-capsula');
+            
+            const intervalo = setInterval(() => {
+                let horas = Math.floor(tiempo / 3600);
+                let minutos = Math.floor((tiempo % 3600) / 60);
+                let segundos = tiempo % 60;
 
-    function clickSaibamanTower() {
-      if (!saibamanActive) {
-        alert("La Torre está tranquila por ahora. No hay ataques activos.");
-        return;
-      }
-      document.getElementById('saibaman-attack-modal').style.display = 'flex';
-    }
+                timerElement.innerText = 
+                    `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
 
-    function responseSaibamanBattle(accept) {
-      document.getElementById('saibaman-attack-modal').style.display = 'none';
-      if (accept) {
-        startPokemonBattle();
-      } else {
-        document.getElementById('saibaman-red-dot').style.display = 'none';
-        saibamanActive = false;
-        alert("Has evitado el combate por ahora. El Saibaman sigue merodeando cerca.");
-      }
-    }
-
-    function startPokemonBattle() {
-      enemyHp = 100;
-      playerHp = 100;
-      kameCooldown = 0;
-      updateCooldownUI();
-      document.getElementById('enemy-hp-fill').style.width = '100%';
-      document.getElementById('player-hp-fill').style.width = '100%';
-      document.getElementById('battle-message-text').innerText = "¿Qué hará el Anciano Saiyan?";
-      
-      document.getElementById('battle-main-menu').style.display = 'grid';
-      document.getElementById('battle-attack-menu').style.display = 'none';
-      document.getElementById('pokemon-battle-screen').style.display = 'flex';
-    }
-
-    function showAttackMenu() {
-      document.getElementById('battle-main-menu').style.display = 'none';
-      document.getElementById('battle-attack-menu').style.display = 'grid';
-      document.getElementById('battle-message-text').innerText = "Selecciona un ataque:";
-    }
-
-    function backToMainMenu() {
-      document.getElementById('battle-attack-menu').style.display = 'none';
-      document.getElementById('battle-main-menu').style.display = 'grid';
-      document.getElementById('battle-message-text').innerText = "¿Qué hará el Anciano Saiyan?";
-    }
-
-    function tryRecruit() {
-      document.getElementById('battle-main-menu').style.display = 'none';
-      document.getElementById('battle-message-text').innerText = "¡Lanzaste una Cápsula para reclutar al Saibaman...";
-
-      setTimeout(() => {
-        if (enemyHp <= 40 || Math.random() < 0.5) {
-          document.getElementById('battle-message-text').innerText = "¡Excelente! El Saibaman ha sido reclutado con éxito.";
-          saibamanActive = false;
-          document.getElementById('saibaman-red-dot').style.display = 'none';
-          setTimeout(() => { document.getElementById('pokemon-battle-screen').style.display = 'none'; }, 2000);
-        } else {
-          document.getElementById('battle-message-text').innerText = "¡Oh no! El Saibaman escapó de la cápsula y contraataca.";
-          setTimeout(() => { enemyTurn(); }, 1500);
+                if (--tiempo < 0) {
+                    clearInterval(intervalo);
+                    timerElement.innerText = "¡Completado!";
+                }
+            }, 1000);
         }
-      }, 1500);
-    }
 
-    function updateCooldownUI() {
-      const kameBtn = document.getElementById('btn-kame');
-      if (kameCooldown > 0) {
-        kameBtn.disabled = true;
-        kameBtn.innerText = `🌀 KAME HAME HA (${kameCooldown})`;
-      } else {
-        kameBtn.disabled = false;
-        kameBtn.innerText = `🌀 KAME HAME HA`;
-      }
-    }
+        // 3. El mensaje del Anciano Sayán salta SOLO al hacer clic en la aldea
+        function visitarAldea() {
+            document.getElementById('modal-anciano').style.display = 'flex';
+        }
 
-    function playerAction(type) {
-      if (type === 'huir') {
-        document.getElementById('battle-message-text').innerText = "¡Lograste escapar a salvo de la batalla!";
-        document.getElementById('battle-main-menu').style.display = 'none';
-        document.getElementById('battle-attack-menu').style.display = 'none';
-        setTimeout(() => { document.getElementById('pokemon-battle-screen').style.display = 'none'; }, 1500);
-        return;
-      }
-
-      let damageToEnemy = 0;
-      let actionName = "";
-
-      if (type === 'kame') {
-        if (kameCooldown > 0) return;
-        damageToEnemy = Math.floor(Math.random() * 25) + 45;
-        actionName = "¡El Anciano lanzó un KAME HAME HA";
-        kameCooldown = 2;
-      } else if (type === 'golpe') {
-        damageToEnemy = Math.floor(Math.random() * 15) + 15;
-        actionName = "¡El Anciano dio un golpe";
-      } else if (type === 'patada') {
-        damageToEnemy = Math.floor(Math.random() * 20) + 20;
-        actionName = "¡El Anciano conectó una patada";
-      }
-
-      if (kameCooldown > 0) kameCooldown--;
-
-      enemyHp = Math.max(0, enemyHp - damageToEnemy);
-      document.getElementById('enemy-hp-fill').style.width = enemyHp + '%';
-      document.getElementById('battle-message-text').innerText = `${actionName} causando ${damageToEnemy} de daño!`;
-      document.getElementById('battle-main-menu').style.display = 'none';
-      document.getElementById('battle-attack-menu').style.display = 'none';
-      updateCooldownUI();
-
-      if (enemyHp <= 0) {
-        setTimeout(() => {
-          document.getElementById('battle-message-text').innerText = "¡Victoria! El Saibaman fue derrotado. +150 Zeni.";
-          playerZeni += 150;
-          document.getElementById('zeni-balance').innerText = playerZeni;
-          saibamanActive = false;
-          document.getElementById('saibaman-red-dot').style.display = 'none';
-
-          setTimeout(() => { document.getElementById('pokemon-battle-screen').style.display = 'none'; }, 2200);
-        }, 1200);
-        return;
-      }
-
-      setTimeout(() => { enemyTurn(); }, 1200);
-    }
-
-    function enemyTurn() {
-      const damageToPlayer = Math.floor(Math.random() * 15) + 10;
-      playerHp = Math.max(0, playerHp - damageToPlayer);
-      document.getElementById('player-hp-fill').style.width = playerHp + '%';
-      document.getElementById('battle-message-text').innerText = `El Saibaman contraataca y quita ${damageToPlayer} HP.`;
-
-      if (playerHp <= 0) {
-        setTimeout(() => {
-          document.getElementById('battle-message-text').innerText = "¡Has sido derrotado... Retirada de emergencia!";
-          setTimeout(() => { document.getElementById('pokemon-battle-screen').style.display = 'none'; }, 2000);
-        }, 1200);
-      } else {
-        setTimeout(() => {
-          document.getElementById('battle-message-text').innerText = "¿Qué hará el Anciano Saiyan?";
-          document.getElementById('battle-main-menu').style.display = 'grid';
-          updateCooldownUI();
-        }, 1200);
-      }
-    }
-
-    function openGacha(type) {
-      const cost = type === 'legendary' ? 500 : 200;
-      const resultBox = document.getElementById('gacha-result-box');
-
-      if (playerZeni < cost) {
-        resultBox.style.display = 'block';
-        resultBox.innerHTML = `⚠️ ¡No tienes suficiente Zeni! Necesitas ${cost} Zeni.`;
-        return;
-      }
-
-      playerZeni -= cost;
-      document.getElementById('zeni-balance').innerText = playerZeni;
-
-      let pool = type === 'legendary' ? [
-        { name: 'Goku Super Saiyan (SSR)', icon: '🔥', rate: '¡Legendario!' },
-        { name: 'Vegeta Super Saiyan (SSR)', icon: '⚡', rate: '¡Legendario!' }
-      ] : [
-        { name: 'Yamcha (R)', icon: '🥊', rate: 'Común' },
-        { name: 'Krilin (R)', icon: '🟡', rate: 'Común' }
-      ];
-
-      const reward = pool[Math.floor(Math.random() * pool.length)];
-
-      resultBox.style.display = 'block';
-      resultBox.innerHTML = `🎉 ¡Has abierto la caja y obtenido!<br><b style="font-size:15px; color:#FFF;">${reward.icon} ${reward.name}</b><br><span style="font-size:10px; color:#AAA;">[${reward.rate}]</span>`;
-    }
-  </script>
+        // 4. Al aceptar, pasa a la sección de Guerreros
+        function aceptarAnciano() {
+            document.getElementById('modal-anciano').style.display = 'none';
+            const listaGuerreros = document.getElementById('lista-guerreros');
+            listaGuerreros.innerHTML = `
+                <div style="background: #2c3e50; padding: 10px; border-radius: 5px; border: 1px solid #3498db;">
+                    <strong>Anciano Sayán</strong> - Nivel 1
+                </div>
+            `;
+            alert("¡Has reclutado al Anciano Sayán! Ya aparece en tu sección de guerreros.");
+        }
+    </script>
 </body>
 </html>
