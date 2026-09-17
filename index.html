@@ -175,7 +175,6 @@
     }
     .lvl-num { color: var(--orange-gold); }
 
-    /* Estilo de alerta parpadeante para el edificio de Saibaman */
     .badge-alert {
       position: absolute; top: -5px; right: -5px; width: 18px; height: 18px;
       background: #E53935; border-radius: 50%; border: 2px solid #FFF;
@@ -289,7 +288,7 @@
     }
     .retro-btn:hover { background: #555; }
 
-    /* --- ESTILOS BATALLA ESTILO POKÉMON --- */
+    /* --- ESTILOS BATALLA ESTILO POKÉMON (INVERTIDO Y CENTRADO) --- */
     #pokemon-battle-screen {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       background: linear-gradient(180deg, #D4A373 0%, #CCD5AE 60%, #588157 100%);
@@ -297,9 +296,9 @@
       padding: 15px; font-family: monospace;
     }
 
-    /* Caja de Estado del Enemigo (Arriba Izquierda) */
+    /* Caja de Estado del Enemigo (Arriba Derecha) */
     .battle-enemy-status {
-      align-self: flex-start; background: rgba(248, 248, 248, 0.9); border: 3px solid #333;
+      align-self: flex-end; background: rgba(248, 248, 248, 0.9); border: 3px solid #333;
       border-radius: 6px; padding: 8px 12px; width: 210px; box-shadow: 0 4px 10px rgba(0,0,0,0.4);
     }
     .battle-name-lvl { display: flex; justify-content: space-between; font-weight: bold; font-size: 12px; color: #222; margin-bottom: 4px; }
@@ -318,21 +317,23 @@
       100% { transform: translateY(-8px); }
     }
 
-    /* Caja de Estado del Jugador (Abajo Derecha) */
+    /* Caja de Estado del Jugador (Abajo Izquierda) */
     .battle-player-status {
-      align-self: flex-end; background: rgba(248, 248, 248, 0.9); border: 3px solid #333;
+      align-self: flex-start; background: rgba(248, 248, 248, 0.9); border: 3px solid #333;
       border-radius: 6px; padding: 8px 12px; width: 210px; box-shadow: 0 4px 10px rgba(0,0,0,0.4);
     }
 
-    /* Panel de Interacción Inferior */
+    /* Panel de Interacción Central (Mensaje centrado en pantalla) */
     .battle-control-panel {
       background: #F8F8F8; border: 4px solid #333; border-radius: 6px;
-      padding: 10px; min-height: 90px; display: flex; flex-direction: column; justify-content: space-between;
+      padding: 12px; min-height: 100px; display: flex; flex-direction: column; justify-content: space-between;
+      position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%);
+      width: 90%; max-width: 380px; box-shadow: 0 10px 25px rgba(0,0,0,0.6); z-index: 210;
     }
-    .battle-msg { font-size: 13px; color: #222; font-weight: bold; line-height: 1.3; }
-    .battle-actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
+    .battle-msg { font-size: 13px; color: #222; font-weight: bold; line-height: 1.4; text-align: center; }
+    .battle-actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
     .battle-action-btn {
-      background: #333; color: #FFB300; border: 2px solid #000; padding: 6px;
+      background: #333; color: #FFB300; border: 2px solid #000; padding: 8px;
       font-family: monospace; font-weight: bold; font-size: 12px; cursor: pointer; border-radius: 4px; text-align: center;
     }
     .battle-action-btn:hover { background: #555; }
@@ -572,9 +573,9 @@
 
     </div>
 
-    <!-- PANTALLA DE BATALLA ESTILO POKÉMON -->
+    <!-- PANTALLA DE BATALLA ESTILO POKÉMON (INVERTIDA Y CENTRADA) -->
     <div id="pokemon-battle-screen">
-      <!-- Estado Enemigo -->
+      <!-- Estado Enemigo (Arriba Derecha) -->
       <div class="battle-enemy-status">
         <div class="battle-name-lvl">
           <span id="enemy-battle-name">SAIBAMAN</span>
@@ -587,11 +588,11 @@
 
       <!-- Arena de Combate -->
       <div class="battle-arena-stage">
-        <div class="battle-enemy-sprite">🌱👽</div>
         <div class="battle-player-sprite">🥋👦</div>
+        <div class="battle-enemy-sprite">🌱👽</div>
       </div>
 
-      <!-- Estado Jugador -->
+      <!-- Estado Jugador (Abajo Izquierda) -->
       <div class="battle-player-status">
         <div class="battle-name-lvl">
           <span>GOKU (INICIAL)</span>
@@ -602,7 +603,7 @@
         </div>
       </div>
 
-      <!-- Panel Inferior de Comandos estilo RPG -->
+      <!-- Panel Central de Comandos y Mensajes -->
       <div class="battle-control-panel">
         <div id="battle-message-text" class="battle-msg">¡Un SAIBAMAN salvaje ha aparecido!</div>
         <div id="battle-actions-container" class="battle-actions-grid">
@@ -742,13 +743,11 @@
       if (target) target.classList.add('active');
     }
 
-    // --- LÓGICA DE ALERTA Y BATALLA SAIBAMAN ---
     function clickSaibamanTower() {
       if (!saibamanActive) {
         alert("La Torre está tranquila por ahora. No hay ataques activos.");
         return;
       }
-      // Mostrar el diálogo de pregunta Sí/No
       document.getElementById('saibaman-attack-modal').style.display = 'flex';
     }
 
@@ -757,7 +756,6 @@
       if (accept) {
         startPokemonBattle();
       } else {
-        // Si dice que No, se oculta temporalmente el aviso
         document.getElementById('saibaman-red-dot').style.display = 'none';
         saibamanActive = false;
         alert("Has evitado el combate por ahora. El Saibaman sigue merodeando cerca.");
@@ -772,16 +770,15 @@
       document.getElementById('battle-message-text').innerText = "¡Un SAIBAMAN salvaje ha aparecido!";
       document.getElementById('battle-actions-container').style.display = 'grid';
       
-      // Mostrar pantalla de batalla
       document.getElementById('pokemon-battle-screen').style.display = 'flex';
     }
 
     function playerAttack() {
-      const damageToEnemy = Math.floor(Math.random() * 35) + 30; // 30-65 de daño
+      const damageToEnemy = Math.floor(Math.random() * 35) + 30;
       enemyHp = Math.max(0, enemyHp - damageToEnemy);
       document.getElementById('enemy-hp-fill').style.width = enemyHp + '%';
 
-      document.getElementById('battle-message-text').innerText = `¡Atacaste al Saibaman e infligiste ${damage2String(damageToEnemy)} de daño!`;
+      document.getElementById('battle-message-text').innerText = `¡Atacaste al Saibaman e infligiste ${damageToEnemy} de daño!`;
       document.getElementById('battle-actions-container').style.display = 'none';
 
       if (enemyHp <= 0) {
@@ -799,7 +796,6 @@
         return;
       }
 
-      // Turno del Saibaman
       setTimeout(() => {
         const damageToPlayer = Math.floor(Math.random() * 20) + 10;
         playerHp = Math.max(0, playerHp - damageToPlayer);
@@ -821,8 +817,6 @@
         }
       }, 1200);
     }
-
-    function damage2String(val) { return val; }
 
     function playerRun() {
       document.getElementById('battle-message-text').innerText = "¡Lograste escapar a salvo de la batalla!";
