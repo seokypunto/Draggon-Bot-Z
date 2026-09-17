@@ -288,7 +288,7 @@
     }
     .retro-btn:hover { background: #555; }
 
-    /* --- ESTILOS BATALLA POKÉMON (AJUSTADOS A TU PETICIÓN) --- */
+    /* --- ESTILOS BATALLA POKÉMON CLÁSICA --- */
     #pokemon-battle-screen {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       background: linear-gradient(180deg, #D4A373 0%, #CCD5AE 60%, #588157 100%);
@@ -318,7 +318,7 @@
       100% { transform: translateY(-8px); }
     }
 
-    /* Héroe Abajo Izquierda (Al límite del rincón inferior izquierdo) */
+    /* Anciano Saiyan Abajo Izquierda (Esquina inferior izquierda absoluta) */
     .battle-bottom-container {
       display: flex; justify-content: flex-start; align-items: flex-end; width: 100%; position: relative; padding-bottom: 2px; gap: 8px;
     }
@@ -328,26 +328,26 @@
     .battle-player-status {
       background: rgba(248, 248, 248, 0.9); border: 3px solid #333;
       border-radius: 6px; padding: 6px 10px; width: 200px; box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-      margin-bottom: 0px; /* Apoyado abajo del todo */
+      margin-bottom: 0px;
     }
 
-    /* Panel de Interacción Central (4 opciones de ataque) */
-    .battle-control-panel {
+    /* Caja de Diálogo y Menú Estilo Pokémon (Abajo del todo) */
+    .battle-control-box {
       background: #F8F8F8; border: 4px solid #333; border-radius: 6px;
-      padding: 10px; display: flex; flex-direction: column; justify-content: space-between;
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      width: 92%; max-width: 390px; box-shadow: 0 10px 25px rgba(0,0,0,0.6); z-index: 210;
+      padding: 10px; display: grid; grid-template-columns: 1.3fr 1fr; gap: 8px;
+      width: 100%; box-shadow: 0 10px 25px rgba(0,0,0,0.6); z-index: 210;
+      margin-bottom: 4px;
     }
-    .battle-msg { font-size: 12px; color: #222; font-weight: bold; line-height: 1.3; text-align: center; margin-bottom: 8px; min-height: 30px; display: flex; align-items: center; justify-content: center;}
+    .battle-msg { font-size: 11px; color: #222; font-weight: bold; line-height: 1.3; display: flex; align-items: center; }
     
-    /* Grid de 4 botones de ataque */
-    .battle-actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-    .battle-action-btn {
+    /* Grids de Botones (Menú principal y Menú de ataques) */
+    .battle-menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+    .battle-menu-btn {
       background: #333; color: #FFB300; border: 2px solid #000; padding: 8px 4px;
       font-family: monospace; font-weight: bold; font-size: 11px; cursor: pointer; border-radius: 4px; text-align: center;
     }
-    .battle-action-btn:hover { background: #555; }
-    .battle-action-btn:disabled { background: #777; color: #aaa; border-color: #555; cursor: not-allowed; }
+    .battle-menu-btn:hover { background: #555; }
+    .battle-menu-btn:disabled { background: #777; color: #aaa; border-color: #555; cursor: not-allowed; }
 
     /* ESTILOS TIENDA DE MINTEO / GACHA */
     .gacha-container {
@@ -403,8 +403,8 @@
   <div id="intro-hero-modal" class="retro-dialog-overlay">
     <div class="retro-box">
       <div class="retro-box-title">SISTEMA DRAGON BOT Z</div>
-      <p class="retro-text">¡Bienvenido, guerrero! Escoge tu héroe inicial gratuito para liderar tu imperio. Será enviado directo a la Cápsula Corp Lab para su incubación inicial.</p>
-      <button class="retro-btn" onclick="claimInitialHero()">¡Reclamar Héroe Gratuito!</button>
+      <p class="retro-text">¡Bienvenido, guerrero! Te regalamos al Anciano Saiyan inicial para que se una a ti en tu aventura. Será enviado directo a la Cápsula Corp Lab.</p>
+      <button class="retro-btn" onclick="claimInitialHero()">¡Recibir Anciano Saiyan!</button>
     </div>
   </div>
 
@@ -537,7 +537,7 @@
         <div class="modal-title">🧪 Cápsula Corp Lab</div>
         <p style="text-align: center; color: #AAA; font-size: 13px;">Tecnología e investigaciones especiales.</p>
         <div id="capsula-status-hero" style="margin-top: 15px; padding: 10px; background: rgba(0,255,255,0.05); border: 1px solid #80DEEA; border-radius: 8px; font-size: 12px; text-align: center; color: #80DEEA; display: none;">
-          ⚡ Héroe en Incubación (72h restantes)
+          ⚡ Anciano Saiyan en el Lab (Listo para unirse)
         </div>
         <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
       </div>
@@ -584,7 +584,7 @@
 
     </div>
 
-    <!-- PANTALLA DE BATALLA (ESTILO POKÉMON CON 4 OPCIONES Y HÉROE ABAJO IZQUIERDA AL LÍMITE) -->
+    <!-- PANTALLA DE BATALLA ESTILO POKÉMON -->
     <div id="pokemon-battle-screen">
       
       <!-- Contenedor Superior (Saibaman Arriba Derecha) -->
@@ -601,29 +601,43 @@
         <div class="battle-enemy-sprite">🌱👽</div>
       </div>
 
-      <!-- Panel Central de Comandos (4 Ataques) -->
-      <div class="battle-control-panel">
-        <div id="battle-message-text" class="battle-msg">¡Un SAIBAMAN salvaje ha aparecido!</div>
-        <div id="battle-actions-container" class="battle-actions-grid">
-          <button class="battle-action-btn" id="btn-kame" onclick="playerAction('kame')">🌀 KAME HAME HA</button>
-          <button class="battle-action-btn" onclick="playerAction('golpe')">👊 GOLPE</button>
-          <button class="battle-action-btn" onclick="playerAction('patada')">🦵 PATADA</button>
-          <button class="battle-action-btn" onclick="playerAction('huir')">🏃 HUIR</button>
+      <!-- Contenedor Inferior (Anciano Saiyan Abajo Izquierda + Menú de Combate Estilo Pokémon) -->
+      <div style="display: flex; flex-direction: column; width: 100%;">
+        
+        <div class="battle-bottom-container">
+          <div class="battle-player-sprite">👴✨</div>
+          <div class="battle-player-status">
+            <div class="battle-name-lvl">
+              <span>ANCIANO SAIYAN</span>
+              <span>Nv.30</span>
+            </div>
+            <div class="battle-hp-bar-bg">
+              <div id="player-hp-fill" class="battle-hp-bar-fill"></div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <!-- Contenedor Inferior (Héroe Abajo Izquierda, Pegado al límite del rincón) -->
-      <div class="battle-bottom-container">
-        <div class="battle-player-sprite">🥋👦</div>
-        <div class="battle-player-status">
-          <div class="battle-name-lvl">
-            <span>GOKU (INICIAL)</span>
-            <span>Nv.30</span>
+        <!-- Caja de Diálogo Estilo Pokémon (Abajo del todo) -->
+        <div class="battle-control-box">
+          <div id="battle-message-text" class="battle-msg">¿Qué hará el Anciano Saiyan?</div>
+          
+          <!-- Menú Principal (Atacar / Reclutar / Mochila / Huir) -->
+          <div id="battle-main-menu" class="battle-menu-grid">
+            <button class="battle-menu-btn" onclick="showAttackMenu()">⚔️ ATACAR</button>
+            <button class="battle-menu-btn" onclick="tryRecruit()">🎯 RECLUTAR</button>
+            <button class="battle-menu-btn" onclick="alert('Sin objetos disponibles')">🎒 MOCHILA</button>
+            <button class="battle-menu-btn" onclick="playerAction('huir')">🏃 HUIR</button>
           </div>
-          <div class="battle-hp-bar-bg">
-            <div id="player-hp-fill" class="battle-hp-bar-fill"></div>
+
+          <!-- Menú de Selección de Ataques (Oculto por defecto hasta pulsar ATACAR) -->
+          <div id="battle-attack-menu" class="battle-menu-grid" style="display: none;">
+            <button class="battle-menu-btn" id="btn-kame" onclick="playerAction('kame')">🌀 KAME HAME HA</button>
+            <button class="battle-menu-btn" onclick="playerAction('golpe')">👊 GOLPE</button>
+            <button class="battle-menu-btn" onclick="playerAction('patada')">🦵 PATADA</button>
+            <button class="battle-menu-btn" onclick="backToMainMenu()">↩️ VOLVER</button>
           </div>
         </div>
+
       </div>
 
     </div>
@@ -676,7 +690,7 @@
 
     let enemyHp = 100;
     let playerHp = 100;
-    let kameCooldown = 0; // Control de turno de cooldown para Kamehameha
+    let kameCooldown = 0;
 
     function claimInitialHero() {
       hasClaimedHero = true;
@@ -783,10 +797,40 @@
       updateCooldownUI();
       document.getElementById('enemy-hp-fill').style.width = '100%';
       document.getElementById('player-hp-fill').style.width = '100%';
-      document.getElementById('battle-message-text').innerText = "¡Un SAIBAMAN salvaje ha aparecido!";
-      document.getElementById('battle-actions-container').style.display = 'grid';
+      document.getElementById('battle-message-text').innerText = "¿Qué hará el Anciano Saiyan?";
       
+      document.getElementById('battle-main-menu').style.display = 'grid';
+      document.getElementById('battle-attack-menu').style.display = 'none';
       document.getElementById('pokemon-battle-screen').style.display = 'flex';
+    }
+
+    function showAttackMenu() {
+      document.getElementById('battle-main-menu').style.display = 'none';
+      document.getElementById('battle-attack-menu').style.display = 'grid';
+      document.getElementById('battle-message-text').innerText = "Selecciona un ataque:";
+    }
+
+    function backToMainMenu() {
+      document.getElementById('battle-attack-menu').style.display = 'none';
+      document.getElementById('battle-main-menu').style.display = 'grid';
+      document.getElementById('battle-message-text').innerText = "¿Qué hará el Anciano Saiyan?";
+    }
+
+    function tryRecruit() {
+      document.getElementById('battle-main-menu').style.display = 'none';
+      document.getElementById('battle-message-text').innerText = "¡Lanzaste una Cápsula para reclutar al Saibaman...";
+
+      setTimeout(() => {
+        if (enemyHp <= 40 || Math.random() < 0.5) {
+          document.getElementById('battle-message-text').innerText = "¡Excelente! El Saibaman ha sido reclutado con éxito.";
+          saibamanActive = false;
+          document.getElementById('saibaman-red-dot').style.display = 'none';
+          setTimeout(() => { document.getElementById('pokemon-battle-screen').style.display = 'none'; }, 2000);
+        } else {
+          document.getElementById('battle-message-text').innerText = "¡Oh no! El Saibaman escapó de la cápsula y contraataca.";
+          setTimeout(() => { enemyTurn(); }, 1500);
+        }
+      }, 1500);
     }
 
     function updateCooldownUI() {
@@ -803,7 +847,8 @@
     function playerAction(type) {
       if (type === 'huir') {
         document.getElementById('battle-message-text').innerText = "¡Lograste escapar a salvo de la batalla!";
-        document.getElementById('battle-actions-container').style.display = 'none';
+        document.getElementById('battle-main-menu').style.display = 'none';
+        document.getElementById('battle-attack-menu').style.display = 'none';
         setTimeout(() => { document.getElementById('pokemon-battle-screen').style.display = 'none'; }, 1500);
         return;
       }
@@ -813,29 +858,29 @@
 
       if (type === 'kame') {
         if (kameCooldown > 0) return;
-        damageToEnemy = Math.floor(Math.random() * 25) + 45; // Daño fuerte
-        actionName = "¡Lanzaste un KAME HAME HA devastador";
-        kameCooldown = 2; // Activa cooldown de 1 turno completo
+        damageToEnemy = Math.floor(Math.random() * 25) + 45;
+        actionName = "¡El Anciano lanzó un KAME HAME HA";
+        kameCooldown = 2; // Cooldown de 1 turno completo
       } else if (type === 'golpe') {
         damageToEnemy = Math.floor(Math.random() * 15) + 15;
-        actionName = "¡Golpeaste al Saibaman";
+        actionName = "¡El Anciano dio un golpe";
       } else if (type === 'patada') {
         damageToEnemy = Math.floor(Math.random() * 20) + 20;
-        actionName = "¡Conectaste una fuerte patada";
+        actionName = "¡El Anciano conectó una patada";
       }
 
-      // Reducir cooldown si está activo en otros turnos
       if (kameCooldown > 0) kameCooldown--;
 
       enemyHp = Math.max(0, enemyHp - damageToEnemy);
       document.getElementById('enemy-hp-fill').style.width = enemyHp + '%';
-      document.getElementById('battle-message-text').innerText = `${actionName} infligiendo ${damageToEnemy} de daño!`;
-      document.getElementById('battle-actions-container').style.display = 'none';
+      document.getElementById('battle-message-text').innerText = `${actionName} causando ${damageToEnemy} de daño!`;
+      document.getElementById('battle-main-menu').style.display = 'none';
+      document.getElementById('battle-attack-menu').style.display = 'none';
       updateCooldownUI();
 
       if (enemyHp <= 0) {
         setTimeout(() => {
-          document.getElementById('battle-message-text').innerText = "¡Has derrotado al Saibaman con éxito! +150 Zeni ganados.";
+          document.getElementById('battle-message-text').innerText = "¡Victoria! El Saibaman fue derrotado. +150 Zeni.";
           playerZeni += 150;
           document.getElementById('zeni-balance').innerText = playerZeni;
           saibamanActive = false;
@@ -846,26 +891,27 @@
         return;
       }
 
-      // Turno del enemigo contraatacando
-      setTimeout(() => {
-        const damageToPlayer = Math.floor(Math.random() * 15) + 10;
-        playerHp = Math.max(0, playerHp - damageToPlayer);
-        document.getElementById('player-hp-fill').style.width = playerHp + '%';
-        document.getElementById('battle-message-text').innerText = `El Saibaman contraataca y te quita ${damageToPlayer} HP.`;
+      setTimeout(() => { enemyTurn(); }, 1200);
+    }
 
-        if (playerHp <= 0) {
-          setTimeout(() => {
-            document.getElementById('battle-message-text').innerText = "¡Has sido derrotado... Retirada de emergencia!";
-            setTimeout(() => { document.getElementById('pokemon-battle-screen').style.display = 'none'; }, 2000);
-          }, 1200);
-        } else {
-          setTimeout(() => {
-            document.getElementById('battle-message-text').innerText = "¿Qué deseas hacer?";
-            document.getElementById('battle-actions-container').style.display = 'grid';
-            updateCooldownUI();
-          }, 1200);
-        }
-      }, 1200);
+    function enemyTurn() {
+      const damageToPlayer = Math.floor(Math.random() * 15) + 10;
+      playerHp = Math.max(0, playerHp - damageToPlayer);
+      document.getElementById('player-hp-fill').style.width = playerHp + '%';
+      document.getElementById('battle-message-text').innerText = `El Saibaman contraataca y quita ${damageToPlayer} HP.`;
+
+      if (playerHp <= 0) {
+        setTimeout(() => {
+          document.getElementById('battle-message-text').innerText = "¡Has sido derrotado... Retirada de emergencia!";
+          setTimeout(() => { document.getElementById('pokemon-battle-screen').style.display = 'none'; }, 2000);
+        }, 1200);
+      } else {
+        setTimeout(() => {
+          document.getElementById('battle-message-text').innerText = "¿Qué hará el Anciano Saiyan?";
+          document.getElementById('battle-main-menu').style.display = 'grid';
+          updateCooldownUI();
+        }, 1200);
+      }
     }
 
     function openGacha(type) {
