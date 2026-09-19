@@ -40,11 +40,13 @@
       background-color: var(--bg-dark);
       color: #fff;
       height: 100vh;
+      height: 100dvh;
       width: 100vw;
       overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
+      overscroll-behavior: none;
     }
 
     /* CONTENEDOR MARCO MÓVIL */
@@ -52,6 +54,7 @@
       width: 100%;
       max-width: 450px;
       height: 100vh;
+      height: 100dvh;
       max-height: 920px;
       background-color: #10141e;
       position: relative;
@@ -121,6 +124,8 @@
       overflow: hidden;
       cursor: grab;
       perspective: 1000px;
+      touch-action: none;
+      overscroll-behavior: contain;
     }
     #map-viewport:active { cursor: grabbing; }
 
@@ -336,6 +341,69 @@
       max-width: 85%; text-align: center;
     }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* --- SELECCIÓN DE HÉROE INICIAL --- */
+    .heroes-select-grid { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 320px; }
+    .hero-select-card {
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px; padding: 10px 12px;
+    }
+    .hero-select-icon {
+      width: 54px; height: 54px; border-radius: 14px; flex-shrink: 0;
+      background: linear-gradient(135deg, #263238, #102027); border: 2px solid var(--orange-dbz);
+      display: flex; align-items: center; justify-content: center; font-size: 28px;
+    }
+    .hero-select-info { flex: 1; }
+    .hero-select-info .h-name { font-weight: 900; font-size: 14px; color: #FFF; }
+    .hero-select-info .h-desc { font-size: 11px; color: #AAA; margin-top: 2px; }
+    .btn-elegir {
+      border: none; cursor: pointer; background: linear-gradient(135deg, var(--orange-gold), var(--orange-dbz));
+      color: #101010; font-weight: 900; font-size: 12px; padding: 8px 12px; border-radius: 10px; white-space: nowrap;
+    }
+
+    /* --- SECCIÓN CÁPSULA (ENTRENAMIENTO) --- */
+    .capsula-hero-box {
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px; padding: 18px; width: 100%; max-width: 300px; margin: 0 auto;
+    }
+    .capsula-hero-icon {
+      width: 70px; height: 70px; border-radius: 18px;
+      background: linear-gradient(135deg, #263238, #102027); border: 2px solid #80DEEA;
+      display: flex; align-items: center; justify-content: center; font-size: 36px;
+    }
+    .capsula-timer { font-size: 20px; font-weight: 900; color: var(--orange-gold); letter-spacing: 1px; }
+    .capsula-timer.completado { color: #66BB6A; }
+
+    /* --- MODAL ANCIANO --- */
+    .anciano-icon-grande {
+      width: 90px; height: 90px; border-radius: 50%; font-size: 44px;
+      background: linear-gradient(135deg, #37474F, #102027); border: 3px solid var(--orange-gold);
+      display: flex; align-items: center; justify-content: center; margin-bottom: 12px;
+    }
+    .anciano-dialogo { font-size: 13px; color: #E0E0E0; text-align: center; max-width: 300px; line-height: 1.5; margin-bottom: 16px; }
+    .btn-reclutar {
+      border: none; cursor: pointer; background: linear-gradient(135deg, #66BB6A, #2E7D32);
+      color: #FFF; font-weight: 900; font-size: 14px; padding: 12px 24px; border-radius: 12px;
+    }
+
+    /* --- ROSTER DE GUERREROS --- */
+    .guerreros-grid { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 320px; }
+    .guerrero-card {
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px; padding: 10px 12px;
+    }
+    .guerrero-icon {
+      width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0;
+      background: linear-gradient(135deg, #263238, #102027); border: 2px solid var(--orange-dbz);
+      display: flex; align-items: center; justify-content: center; font-size: 24px;
+    }
+    .guerrero-info { flex: 1; }
+    .guerrero-info .g-name { font-weight: 800; font-size: 13px; color: #FFF; }
+    .guerrero-info .g-meta { font-size: 10px; color: #AAA; margin-top: 2px; }
+    .guerreros-vacio { font-size: 12px; color: #777; text-align: center; padding: 20px 0; }
   </style>
 </head>
 <body>
@@ -436,13 +504,17 @@
       <!-- MODALES DE VISTA PARA OTRAS PESTAÑAS -->
       <div id="modal-capsula" class="view-modal">
         <div class="modal-title">🧪 Cápsula Corp Lab</div>
-        <p style="text-align: center; color: #AAA; font-size: 13px;">Tecnología e investigaciones especiales.</p>
+        <div id="capsula-contenido">
+          <p style="text-align: center; color: #AAA; font-size: 13px;">Todavía no tienes ningún guerrero entrenando aquí.</p>
+        </div>
         <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
       </div>
 
       <div id="modal-guerreros" class="view-modal">
         <div class="modal-title">⚔️ Escuadrón Z</div>
-        <p style="text-align: center; color: #AAA; font-size: 13px;">Gestión de luchadores y formaciones.</p>
+        <div id="guerreros-contenido" class="guerreros-grid">
+          <div class="guerreros-vacio">Todavía no has reclutado guerreros.</div>
+        </div>
         <button class="circle-btn" style="margin: 20px auto 0; width: auto; padding: 8px 16px; border-radius: 8px; font-size: 12px;" onclick="closeModals()">Cerrar</button>
       </div>
 
@@ -483,6 +555,21 @@
           ⬆️ <span id="btn-mejorar-texto">Mejorar edificio</span>
         </button>
         <button class="btn-cerrar-modal" onclick="closeModals()">Cerrar</button>
+      </div>
+
+      <!-- MODAL DE SELECCIÓN DE HÉROE INICIAL -->
+      <div id="modal-seleccion-heroe" class="view-modal">
+        <div class="modal-title">🌟 Elige a tu primer guerrero</div>
+        <p style="text-align:center; color:#AAA; font-size:12px; max-width:300px; margin-bottom:14px;">Este guerrero empezará a entrenar en la Cápsula durante 72 horas.</p>
+        <div class="heroes-select-grid" id="heroes-select-grid"></div>
+      </div>
+
+      <!-- MODAL DEL ANCIANO GUERRERO (EVENTO ALDEA) -->
+      <div id="modal-anciano" class="view-modal">
+        <div class="modal-title">👴 Un superviviente aparece</div>
+        <div class="anciano-icon-grande">👴</div>
+        <p class="anciano-dialogo">"Soy el último superviviente de mi raza, casi extinguida tras el ataque de las fuerzas del tirano Kroven. Desde entonces me oculto aquí... pero puedo ayudaros contra los Zarcos que atacan sin descanso esta aldea."</p>
+        <button class="btn-reclutar" onclick="reclutarAnciano()">OK, reclutar</button>
       </div>
 
     </div>
@@ -545,6 +632,7 @@
       if (e.target.closest('.iso-slot-wrapper') || e.target.closest('.planet-wrapper') || e.target.closest('.circle-btn') || e.target.closest('.view-modal')) return;
       isDragging = true;
       startY = e.clientY - currentTranslateY;
+      try { viewport.setPointerCapture(e.pointerId); } catch (err) {}
     });
 
     window.addEventListener('pointermove', (e) => {
@@ -580,11 +668,14 @@
         activeCanvas = document.getElementById('map-canvas-aldea');
         activeCanvas.style.display = 'block';
         activeCanvas.style.transform = `translateY(0px)`;
+        showElderModalIfNeeded();
       } else if (tabId === 'planetas') {
         activeCanvas = document.getElementById('map-canvas-planetas');
         activeCanvas.style.display = 'block';
         activeCanvas.style.transform = `translateY(0px)`;
       } else {
+        if (tabId === 'capsula') renderCapsulaSection();
+        if (tabId === 'guerreros') renderGuerrerosRoster();
         openModal(tabId);
       }
     }
@@ -598,19 +689,31 @@
     // ==========================================================
     // SISTEMA DE MEJORAS DE EDIFICIOS (ALDEA)
     // ==========================================================
-    const SAVE_KEY = 'dbz_realm_save_v1';
+    const SAVE_KEY = 'dbz_realm_save_v2';
     const MAX_OFFLINE_SECONDS = 8 * 3600; // tope de 8h de ganancias offline
+    const CAPSULA_HORAS = 72;
+
+    const HERO_STARTERS = [
+      { id: 'kairon', name: 'Kairon', icon: '🥋', rareza: 'Común', desc: 'Monje guerrero de golpes precisos y ki controlado.' },
+      { id: 'yarune', name: 'Yarune', icon: '🐺', rareza: 'Común', desc: 'Ex-bandido del desierto, veloz y letal cuerpo a cuerpo.' },
+      { id: 'namuk',  name: 'Namuk',  icon: '👽', rareza: 'Común', desc: 'Guerrero alienígena estoico con gran regeneración.' }
+    ];
+    const ELDER_HERO = { id: 'anciano_ryu', name: 'Anciano Ryu', icon: '👴', rareza: 'Épico' };
 
     const DEFAULT_STATE = {
       zeni: 1250,
       energia: 100,
       dragonballs: 0,
       buildings: {
-        casa:    { name: 'Casa Kame',   icon: '🏠', level: 30, baseCost: 500, costGrowth: 1.18, baseProdHour: 120, prodGrowth: 1.12 },
-        capsula: { name: 'Cápsula Lab', icon: '🧪', level: 28, baseCost: 400, costGrowth: 1.16, baseProdHour: 95,  prodGrowth: 1.11 },
-        dojo:    { name: 'Dojo Z',      icon: '⚔️', level: 28, baseCost: 450, costGrowth: 1.17, baseProdHour: 105, prodGrowth: 1.115 }
+        casa:    { name: 'Casa Kame',   icon: '🏠', level: 0, baseCost: 500, costGrowth: 1.18, baseProdHour: 120, prodGrowth: 1.12 },
+        capsula: { name: 'Cápsula Lab', icon: '🧪', level: 0, baseCost: 400, costGrowth: 1.16, baseProdHour: 95,  prodGrowth: 1.11 },
+        dojo:    { name: 'Dojo Z',      icon: '⚔️', level: 0, baseCost: 450, costGrowth: 1.17, baseProdHour: 105, prodGrowth: 1.115 }
       },
-      lastTick: Date.now()
+      lastTick: Date.now(),
+      starterChosen: false,
+      heroEnCapsula: null,
+      heroes: [],
+      elderRecruited: false
     };
 
     let state = loadState();
@@ -633,6 +736,10 @@
             }
           });
         }
+        merged.starterChosen = !!parsed.starterChosen;
+        merged.heroEnCapsula = parsed.heroEnCapsula || null;
+        merged.heroes = Array.isArray(parsed.heroes) ? parsed.heroes : [];
+        merged.elderRecruited = !!parsed.elderRecruited;
         return merged;
       } catch (e) {
         return JSON.parse(JSON.stringify(DEFAULT_STATE));
@@ -646,11 +753,12 @@
 
     function buildingProdPerHour(b, level) {
       const lvl = level !== undefined ? level : b.level;
+      if (lvl <= 0) return 0;
       return b.baseProdHour * Math.pow(b.prodGrowth, lvl - 1);
     }
 
     function buildingUpgradeCost(b) {
-      return Math.floor(b.baseCost * Math.pow(b.costGrowth, b.level - 1));
+      return Math.floor(b.baseCost * Math.pow(b.costGrowth, b.level));
     }
 
     function totalProdPerHour() {
@@ -753,12 +861,131 @@
       }, 1000);
     }
 
+    // ==========================================================
+    // SELECCIÓN DE HÉROE INICIAL + CÁPSULA (ENTRENAMIENTO 72H)
+    // ==========================================================
+    function showHeroSelectionModal() {
+      const grid = document.getElementById('heroes-select-grid');
+      grid.innerHTML = HERO_STARTERS.map(h => `
+        <div class="hero-select-card">
+          <div class="hero-select-icon">${h.icon}</div>
+          <div class="hero-select-info">
+            <div class="h-name">${h.name} <span style="color:#78909C; font-weight:600;">· ${h.rareza}</span></div>
+            <div class="h-desc">${h.desc}</div>
+          </div>
+          <button class="btn-elegir" onclick="chooseStarterHero('${h.id}')">Elegir</button>
+        </div>
+      `).join('');
+      closeModals();
+      document.getElementById('modal-seleccion-heroe').classList.add('active');
+    }
+
+    function chooseStarterHero(id) {
+      const base = HERO_STARTERS.find(h => h.id === id);
+      if (!base) return;
+      const capsulaEnd = Date.now() + CAPSULA_HORAS * 3600 * 1000;
+      state.heroEnCapsula = { id: base.id, name: base.name, icon: base.icon, rareza: base.rareza, capsulaEnd, nivel: 1 };
+      state.heroes.push({ id: base.id, name: base.name, icon: base.icon, rareza: base.rareza, nivel: 1, ubicacion: 'capsula' });
+      state.starterChosen = true;
+      saveState();
+      closeModals();
+      switchTab('capsula');
+      showToast(`🧪 ${base.name} ha entrado en la Cápsula a entrenar`);
+    }
+
+    function formatCountdown(ms) {
+      if (ms <= 0) return 'Completado';
+      const totalSeconds = Math.floor(ms / 1000);
+      const h = Math.floor(totalSeconds / 3600);
+      const m = Math.floor((totalSeconds % 3600) / 60);
+      const s = totalSeconds % 60;
+      return `${h}h ${m}m ${s}s`;
+    }
+
+    function renderCapsulaSection() {
+      const cont = document.getElementById('capsula-contenido');
+      const h = state.heroEnCapsula;
+      if (!h) {
+        cont.innerHTML = `<p style="text-align:center; color:#AAA; font-size:13px;">Todavía no tienes ningún guerrero entrenando aquí.</p>`;
+        return;
+      }
+      const restante = h.capsulaEnd - Date.now();
+      const listo = restante <= 0;
+      cont.innerHTML = `
+        <div class="capsula-hero-box">
+          <div class="capsula-hero-icon">${h.icon}</div>
+          <div style="font-weight:800; font-size:14px;">${h.name} · Nv. ${h.nivel}</div>
+          <div class="capsula-timer ${listo ? 'completado' : ''}">${formatCountdown(restante)}</div>
+          ${listo ? `<button class="btn-mejorar" style="max-width:220px;" onclick="recogerDeCapsula()">Recoger guerrero</button>` : `<div style="font-size:11px; color:#78909C;">Entrenamiento en curso...</div>`}
+        </div>
+      `;
+    }
+
+    function recogerDeCapsula() {
+      if (!state.heroEnCapsula || state.heroEnCapsula.capsulaEnd > Date.now()) return;
+      const nombre = state.heroEnCapsula.name;
+      const hRoster = state.heroes.find(x => x.id === state.heroEnCapsula.id && x.ubicacion === 'capsula');
+      if (hRoster) hRoster.ubicacion = 'dojo';
+      state.heroEnCapsula = null;
+      saveState();
+      renderCapsulaSection();
+      showToast(`✅ ${nombre} ha terminado su entrenamiento`);
+    }
+
+    // ==========================================================
+    // EVENTO DEL ANCIANO GUERRERO (ALDEA)
+    // ==========================================================
+    function showElderModalIfNeeded() {
+      if (state.elderRecruited) return;
+      document.getElementById('modal-anciano').classList.add('active');
+    }
+
+    function reclutarAnciano() {
+      if (state.elderRecruited) return;
+      state.elderRecruited = true;
+      state.heroes.push({ id: ELDER_HERO.id, name: ELDER_HERO.name, icon: ELDER_HERO.icon, rareza: ELDER_HERO.rareza, nivel: 1, ubicacion: 'dojo' });
+      saveState();
+      closeModals();
+      showToast(`🙏 ${ELDER_HERO.name} se ha unido a tu Escuadrón`);
+    }
+
+    // ==========================================================
+    // ROSTER DE GUERREROS
+    // ==========================================================
+    function renderGuerrerosRoster() {
+      const cont = document.getElementById('guerreros-contenido');
+      if (!state.heroes.length) {
+        cont.innerHTML = `<div class="guerreros-vacio">Todavía no has reclutado guerreros.</div>`;
+        return;
+      }
+      cont.innerHTML = state.heroes.map(h => `
+        <div class="guerrero-card">
+          <div class="guerrero-icon">${h.icon}</div>
+          <div class="guerrero-info">
+            <div class="g-name">${h.name} <span style="color:#78909C; font-weight:600;">· ${h.rareza}</span></div>
+            <div class="g-meta">Nv. ${h.nivel} ${h.ubicacion === 'capsula' ? '· ⏳ En Cápsula' : ''}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
     // ---- INICIALIZACIÓN DEL JUEGO ----
     applyOfflineEarnings();
     updateResourceBar();
     updateBuildingTags();
+    renderGuerrerosRoster();
     saveState();
     startProductionLoop();
+
+    setInterval(() => {
+      if (document.getElementById('modal-capsula').classList.contains('active')) renderCapsulaSection();
+    }, 1000);
+
+    if (!state.starterChosen) {
+      showHeroSelectionModal();
+    } else {
+      showElderModalIfNeeded();
+    }
   </script>
 </body>
 </html>
